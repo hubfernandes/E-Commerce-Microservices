@@ -9,7 +9,7 @@ namespace ProductService.Application.Mappings
         public ProductMappingProfile()
         {
             CreateMap<Product, ProductDto>();
-            CreateMap<ProductDto, Product>().ReverseMap();
+            CreateMap<ProductDto, Product>();
         }
     }
 }

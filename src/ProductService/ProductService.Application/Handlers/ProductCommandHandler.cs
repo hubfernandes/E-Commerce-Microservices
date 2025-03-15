@@ -1,52 +1,74 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using MediatR;
 using ProductService.Application.Commands;
-using ProductService.Domain.Dtos;
+using ProductService.Application.Validators;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Interfaces;
+using Shared.Bases;
 
 namespace ProductService.Application.Handlers
 {
     public class ProductCommandHandler :
-         IRequestHandler<CreateProductCommand, ProductDto>,
-         IRequestHandler<UpdateProductCommand, ProductDto>
+         IRequestHandler<CreateProductCommand, Response<string>>,
+         IRequestHandler<UpdateProductCommand, Response<string>>,
+         IRequestHandler<DeleteProductCommand, Response<string>>
     {
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        private readonly IValidator<CreateProductCommand> _createValidator;
-        private readonly IValidator<UpdateProductCommand> _updateValidator;
+        private readonly IValidateProductExists _validateProductExists;
+        public readonly ResponseHandler _responseHandler;
 
-        public ProductCommandHandler(
-            IProductRepository productRepository,
-            IMapper mapper,
-            IValidator<CreateProductCommand> createValidator,
-            IValidator<UpdateProductCommand> updateValidator)
+
+
+        public ProductCommandHandler(IProductRepository productRepository, ResponseHandler responseHandler, IMapper mapper, IValidateProductExists validateProductExists)
         {
             _productRepository = productRepository;
+            _validateProductExists = validateProductExists;
             _mapper = mapper;
-            _createValidator = createValidator;
-            _updateValidator = updateValidator;
+            _responseHandler = responseHandler;
         }
 
-        public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+        public async Task<Response<string>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
-            var product = new Product(0, request.Name, request.Price, request.Stock);
-            var addedProduct = await _productRepository.AddAsync(product);
-            return _mapper.Map<ProductDto>(addedProduct);
-        }
-
-        public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
-        {
-            var product = await _productRepository.GetByIdAsync(request.Id);
-            if (product == null)
+            try
             {
-                return null;
+                var product = _mapper.Map<Product>(request);
+                if (request.Id != 0) await _validateProductExists.ValidateProductExistsAsync(request.Id);
+                var addedProduct = await _productRepository.AddAsync(product);
+                return _responseHandler.Created<string>("Product Created Successfully");
             }
+            catch (KeyNotFoundException ex)
+            {
+                return _responseHandler.NotFound<string>(ex.Message);
+            }
+        }
 
-            //   product.Update(request.Name, request.Price, request.Stock);
-            var updatedProduct = await _productRepository.UpdateAsync(product);
-            return _mapper.Map<ProductDto>(updatedProduct);
+        public async Task<Response<string>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _validateProductExists.ValidateProductExistsAsync(request.Id);
+                var product = _mapper.Map<Product>(request);
+                var updatedProduct = await _productRepository.UpdateAsync(product);
+                return _responseHandler.Success<string>("Product Updated Successfully");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return _responseHandler.NotFound<string>(ex.Message);
+            }
+        }
+        public async Task<Response<string>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _validateProductExists.ValidateProductExistsAsync(request.Id);
+                await _productRepository.DeleteByIdAsync(request.Id);
+                return _responseHandler.Success<string>("Product Deleted Successfully");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return _responseHandler.NotFound<string>(ex.Message);
+            }
         }
     }
 }
