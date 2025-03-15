@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Options;
+using ProductService.Application.Handlers;
+using ProductService.Infrastructure;
 
 namespace ProductService.Api
 {
@@ -7,16 +10,21 @@ namespace ProductService.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddInfrastructurefDependencyInjection(builder.Configuration);
+            builder.Services.AddSharedDependencyInjection(builder.Configuration);
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ProductQueryHandler).Assembly));
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ProductCommandHandler).Assembly));
+
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
             var app = builder.Build();
+            app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value); // for localization
 
-            // Configure the HTTP request pipeline.
+            app.UseExceptionHandlingMiddleware();
+
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -26,7 +34,6 @@ namespace ProductService.Api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
