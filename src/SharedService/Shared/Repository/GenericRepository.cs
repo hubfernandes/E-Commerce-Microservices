@@ -51,18 +51,22 @@ namespace Shared.Repository
         public virtual async Task<T> AddAsync(T entity)
         {
             await _dbContext.Set<T>().AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
             return entity;
         }
 
         public async Task<T> UpdateAsync(T entity)
         {
+            _dbContext.ChangeTracker.Clear();
             _dbContext.Set<T>().Update(entity);
+            await _dbContext.SaveChangesAsync();
             return entity;
         }
 
         public virtual async Task DeleteAsync(T entity)
         {
             _dbContext.Set<T>().Remove(entity);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteByIdAsync(int id)
@@ -74,6 +78,7 @@ namespace Shared.Repository
                 return false;
             }
             _dbContext.Set<T>().Remove(entity);
+            await _dbContext.SaveChangesAsync();
             return true;
         }
 

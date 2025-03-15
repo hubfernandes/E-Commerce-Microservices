@@ -35,7 +35,8 @@ namespace ProductService.Api.Controllers
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
             var product = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            return CreatedAtAction(nameof(CreateProduct), new { id = product }, new { Id = product });
+
         }
 
         [HttpPut]
@@ -45,11 +46,11 @@ namespace ProductService.Api.Controllers
             return product == null ? NotFound() : Ok(product);
         }
 
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteProduct(int id)
-        //{
-        //    var result = await _mediator.Send(new DeleteProductCommand(id)); // Add this command if needed
-        //    return result ? NoContent() : NotFound();
-        //}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var result = await _mediator.Send(new DeleteProductCommand(id));
+            return (bool)result.Succeeded ? Ok(result) : NotFound(result);
+        }
     }
 }

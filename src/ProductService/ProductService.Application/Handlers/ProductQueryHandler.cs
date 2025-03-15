@@ -3,32 +3,38 @@ using MediatR;
 using ProductService.Application.Queries;
 using ProductService.Domain.Dtos;
 using ProductService.Infrastructure.Interfaces;
+using Shared.Bases;
 
 namespace ProductService.Application.Handlers
 {
     public class ProductQueryHandler :
-        IRequestHandler<GetProductByIdQuery, ProductDto>,
-        IRequestHandler<GetAllProductsQuery, List<ProductDto>>
+        IRequestHandler<GetProductByIdQuery, Response<ProductDto>>,
+        IRequestHandler<GetAllProductsQuery, Response<List<ProductDto>>>
     {
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
+        public readonly ResponseHandler _responseHandler;
 
-        public ProductQueryHandler(IProductRepository productRepository, IMapper mapper)
+
+        public ProductQueryHandler(ResponseHandler responseHandler, IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
             _mapper = mapper;
+            _responseHandler = responseHandler;
         }
 
-        public async Task<ProductDto> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Response<ProductDto>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
             var product = await _productRepository.GetByIdAsync(request.Id);
-            return product == null ? null : _mapper.Map<ProductDto>(product);
+            var mappedProduct = _mapper.Map<ProductDto>(product);
+            return _responseHandler.Success(mappedProduct);
         }
 
-        public async Task<List<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+        public async Task<Response<List<ProductDto>>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
         {
             var products = await _productRepository.GetAllAsync();
-            return _mapper.Map<List<ProductDto>>(products);
+            var mappedProduct = _mapper.Map<List<ProductDto>>(products);
+            return _responseHandler.Success(mappedProduct);
         }
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
-using ProductService.Application.Handlers;
+using ProductService.Application;
 using ProductService.Infrastructure;
-
 namespace ProductService.Api
 {
     public class Program
@@ -11,9 +10,7 @@ namespace ProductService.Api
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddInfrastructurefDependencyInjection(builder.Configuration);
-            builder.Services.AddSharedDependencyInjection(builder.Configuration);
-            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ProductQueryHandler).Assembly));
-            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ProductCommandHandler).Assembly));
+            builder.Services.AddApplicationDependencyInjection(builder.Configuration);
 
 
             builder.Services.AddControllers();
@@ -22,7 +19,7 @@ namespace ProductService.Api
             var app = builder.Build();
             app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value); // for localization
 
-            app.UseExceptionHandlingMiddleware();
+            app.UserSharedMiddleWare();
 
 
             if (app.Environment.IsDevelopment())
