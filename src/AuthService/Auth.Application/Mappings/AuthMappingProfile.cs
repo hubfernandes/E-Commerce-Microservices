@@ -9,7 +9,7 @@ namespace Auth.Application.Mappings
     {
         public AuthMappingProfile()
         {
-            CreateMap<RegisterCommand, AppUser>();
+            CreateMap<RegisterAdminCommand, AppUser>();
             CreateMap<LoginCommand, AppUser>();
             CreateMap<AppUser, AppUserDto>();
 
