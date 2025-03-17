@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\AuthService\Auth.Domain\Auth.Domain.csproj" />
+    <ProjectReference Include="..\..\ProductService\ProductService.Application\ProductService.Application.csproj" />
     <ProjectReference Include="..\..\SharedService\Shared\Shared.csproj" />
     <ProjectReference Include="..\Order.Infrastructure\Order.Infrastructure.csproj" />
   </ItemGroup>

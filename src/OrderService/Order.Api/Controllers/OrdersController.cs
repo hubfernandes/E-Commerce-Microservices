@@ -19,6 +19,10 @@ namespace Order.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
         {
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //if (string.IsNullOrEmpty(userId))
+            //    return Unauthorized();
+
             var result = await _mediator.Send(command);
             return CreatedAtAction(nameof(CreateOrder), new { id = result }, new { Id = result });
         }

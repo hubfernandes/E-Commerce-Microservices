@@ -4,6 +4,6 @@ using Shared.Bases;
 
 namespace Order.Application.Commands
 {
-    public record CreateOrderCommand(string CustomerId, DateTime OrderDate, decimal TotalAmount, string Status, List<OrderItemDto> Items)
-        : OrderDto(0, CustomerId, OrderDate, TotalAmount, Status, Items), IRequest<Response<string>>;
+    public record CreateOrderCommand(DateTime OrderDate, decimal TotalAmount, string Status, List<OrderItemDto> Items)
+        : OrderDto(0, OrderDate, TotalAmount, Status, Items), IRequest<Response<string>>;
 }
