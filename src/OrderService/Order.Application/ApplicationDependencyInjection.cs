@@ -1,31 +1,28 @@
-﻿using Auth.Application.Handlers;
-using Auth.Application.Helpers;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Order.Application.Handlers;
+using Order.Application.Validators;
 using Shared.Behavoir;
 using System.Reflection;
 
-namespace Auth.Application
+namespace Order.Application
 {
-    public static class AuthApplicationDependencyInjection
+    public static class ApplicationDependencyInjection
     {
-        public static void AddAuthApplicationDependencyInjection(this IServiceCollection services, IConfiguration configuration)
+        public static void AddApplicationDependencyInjection(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSharedDependencyInjection(configuration);
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AppUserHandler).Assembly));
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AuthHandler).Assembly));
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(AppUserQueryHandler).Assembly));
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(OrderQueryHandler).Assembly));
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(OrderCommandHandler).Assembly));
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-            services.AddScoped<IUserRegistrationHelper, UserRegistrationHelper>();
+            services.AddScoped<IValidateOrderExists, ValidateOrderExists>();
 
         }
-
 
         public static void UserSharedMiddleWare(this IApplicationBuilder app)
         {

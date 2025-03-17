@@ -49,7 +49,7 @@ namespace Auth.Application.Handlers
             var existingUser = await _userManager.FindByEmailAsync(request.Email!);
             if (existingUser == null)
             {
-                return _responseHandler.BadRequest<AuthResponse>("Invalid email .");
+                return _responseHandler.BadRequest<AuthResponse>("User Not Found.");
             }
 
             if (await _userManager.IsLockedOutAsync(existingUser))
@@ -89,7 +89,7 @@ namespace Auth.Application.Handlers
 
         public async Task<Response<string>> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email!);
             if (user == null)
                 return _responseHandler.BadRequest<string>("User not found.");
 
@@ -97,7 +97,7 @@ namespace Auth.Application.Handlers
             var encodedToken = WebUtility.UrlEncode(resetToken);
             //var resetLink = $"http://localhost:4200/auth/reset-password?token={encodedToken}&email={request.Email}";
 
-            var message = new Message(new[] { user.Email }, "Forgot Password Link", resetToken);
+            var message = new Message(new[] { user.Email! }, "Forgot Password Link", resetToken);
 
             try
             {
@@ -130,7 +130,7 @@ namespace Auth.Application.Handlers
 
         public async Task<AuthenticationProperties> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
         {
-            return await Task.FromResult(_googleService.GetGoogleLoginProperties(request.RedirectUri));
+            return await Task.FromResult(_googleService.GetGoogleLoginProperties(request.RedirectUri!));
             //Task.FromResult -> return the result asynchronously. 
         }
 

@@ -4,6 +4,10 @@ using Shared.Wrapper;
 
 namespace Auth.Application.Queries
 {
-    public record GetAllAppUsers(int PageNumber, int PageSize) : IRequest<PaginatedResult<AppUserDto>>;
+    public class GetAllAppUsers : IRequest<PaginatedResult<AppUserDto>>
+    {
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+    }
 
 }

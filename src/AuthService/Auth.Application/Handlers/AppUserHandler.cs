@@ -9,7 +9,8 @@ using Shared.Bases;
 
 namespace Auth.Application.Handlers
 {
-    public class AppUserHandler : IRequestHandler<RegisterCommand, Response<string>>,
+    public class AppUserHandler : IRequestHandler<RegisterAdminCommand, Response<string>>,
+                                   IRequestHandler<RegisterUserCommand, Response<string>>,
                                    IRequestHandler<UpdateAppUserCommand, Response<AppUserDto>>,
                                    IRequestHandler<UpdateProfileRequest, Response<string>>,
                                    IRequestHandler<DeleteAppUserCommand, Response<string>>
@@ -28,11 +29,18 @@ namespace Auth.Application.Handlers
             _userRegistrationHelper = userRegistrationHelper;
         }
 
-        public async Task<Response<string>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+        public async Task<Response<string>> Handle(RegisterAdminCommand request, CancellationToken cancellationToken)
         {
             var user = _mapper.Map<AppUser>(request);
             return await _userRegistrationHelper.RegisterUserAsync(user, request.Password!, "admin");
         }
+
+        public async Task<Response<string>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+        {
+            var user = _mapper.Map<AppUser>(request);
+            return await _userRegistrationHelper.RegisterUserAsync(user, request.Password!, "user");
+        }
+
 
         public async Task<Response<AppUserDto>> Handle(UpdateAppUserCommand request, CancellationToken cancellationToken)
         {

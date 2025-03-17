@@ -1,6 +1,5 @@
 ﻿using Auth.Application.Commands;
 using Auth.Application.Queries;
-using Auth.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,16 +10,16 @@ namespace Auth.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    /*     
+    {  
+     "email": "noor@example.com",
+     "password": "P@ssw0rd!"
+    }
+    */
+    public class AccountController(IMediator mediator, ResponseHandler responseHandler) : ControllerBase
     {
-        public IMediator _mediator;
-        public readonly ResponseHandler _responseHandler;
-
-        public AccountController(IMediator mediator, ResponseHandler responseHandler)
-        {
-            _mediator = mediator;
-            _responseHandler = responseHandler;
-        }
+        public IMediator _mediator = mediator;
+        public readonly ResponseHandler _responseHandler = responseHandler;
 
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(string userId)
@@ -57,28 +56,22 @@ namespace Auth.Api.Controllers
         public async Task<IActionResult> ConfirmEmail([FromQuery] string userId, [FromQuery] string token) // from query as i fetch it from query params 
         {
             var result = await _mediator.Send(new ConfirmEmailCommand(userId, token));
-            if (result.Succeeded == null) return _responseHandler.BadRequest<AppUser>(result.Message));
-
-            return Ok(new { Message = result });
+            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
         }
 
 
         [HttpPost("register/admin")]
-        public async Task<IActionResult> Register([FromBody] RegisterCommand command)
+        public async Task<IActionResult> Register([FromBody] RegisterAdminCommand command)
         {
-            if (!ModelState.IsValid)
-            {
-                return NewResult(_responseHandler.BadRequest<AppUser>("Invalid request data."));
-            }
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
+        }
 
-            var response = await _mediator.Send(command); // It sends a command to a corresponding handler, which then executes the necessary business logic
-
-            if (response.Succeeded == null)
-            {
-                return BadRequest(response);
-            }
-
-            return Ok(response);
+        [HttpPost("register/user")]
+        public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("refresh-token")]
@@ -102,7 +95,7 @@ namespace Auth.Api.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return NewResult(_responseHandler.Unauthorized<AppUser>());
+                return Unauthorized();
 
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
@@ -144,7 +137,7 @@ namespace Auth.Api.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (string.IsNullOrEmpty(userId))
-                return NewResult(_responseHandler.Unauthorized<AppUser>());
+                return Unauthorized();
 
             var result = await _mediator.Send(new UpdateProfileRequest(userId, command));
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
@@ -157,7 +150,7 @@ namespace Auth.Api.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return NewResult(_responseHandler.Unauthorized<AppUser>());
+                return Unauthorized();
 
             var command = new DeleteAppUserCommand(userId);
             var result = await _mediator.Send(command);
