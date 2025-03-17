@@ -20,6 +20,7 @@ namespace Order.Infrastructure
 
             //DI
             services.AddScoped<IOrderRepository, OrderRepository>();
+
         }
     }
 }

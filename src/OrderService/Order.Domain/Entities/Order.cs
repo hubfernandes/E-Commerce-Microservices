@@ -5,7 +5,7 @@ namespace Order.Domain.Entities
     public class Order
     {
         public int Id { get; private set; }
-        public string CustomerId { get; private set; }
+        public string CustomerId { get; set; }
         public DateTime OrderDate { get; private set; }
         public decimal TotalAmount { get; private set; }
         public OrderStatus Status { get; private set; }
@@ -15,8 +15,6 @@ namespace Order.Domain.Entities
         }
         public Order(int id, string customerId, List<OrderItem> items)
         {
-            if (customerId == null)
-                throw new ArgumentException("Customer ID must be valid.", nameof(customerId));
             if (items == null || !items.Any())
                 throw new ArgumentException("Order must contain at least one item.", nameof(items));
 
@@ -28,7 +26,7 @@ namespace Order.Domain.Entities
             CalculateTotalAmount();
         }
 
-        private void CalculateTotalAmount()
+        public void CalculateTotalAmount()
         {
             TotalAmount = Items.Sum(item => item.UnitPrice * item.Quantity);
         }

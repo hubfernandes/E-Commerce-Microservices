@@ -8,8 +8,6 @@ namespace Order.Application.Validators
     {
         public OrderCommandValidator()
         {
-            RuleFor(x => x.CustomerId)
-                 .NotEmpty().WithMessage("Customer ID is required .");
 
             RuleFor(x => x.OrderDate)
                 .NotEmpty().WithMessage("Order date is required.");
