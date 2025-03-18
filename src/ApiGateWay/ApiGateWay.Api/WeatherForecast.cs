@@ -1,4 +1,4 @@
-namespace Auth.Api
+namespace ApiGateWay.Api
 {
     public class WeatherForecast
     {

@@ -1,4 +1,4 @@
 ﻿namespace Order.Domain.Dtos
 {
-    public record OrderItemDto(int ProductionId, int Quantity, decimal UnitPrice);
+    public record OrderItemDto(int ProductId, int Quantity, decimal UnitPrice);
 }

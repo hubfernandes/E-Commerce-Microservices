@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductService.Application.Commands;
 using ProductService.Application.Queries;
@@ -7,7 +8,7 @@ namespace ProductService.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
+    //[AllowAnonymous]
     public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -21,9 +22,9 @@ namespace ProductService.Api.Controllers
         public async Task<IActionResult> GetProduct(int id)
         {
             var product = await _mediator.Send(new GetProductByIdQuery(id));
-            return product == null ? NotFound() : Ok(product);
+            return (product.Data == null) ? NotFound(product) : Ok(product);
         }
-
+        // [Authorize(Roles = "user")]
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -31,6 +32,7 @@ namespace ProductService.Api.Controllers
             return Ok(products);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
@@ -39,6 +41,7 @@ namespace ProductService.Api.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductCommand command)
         {
@@ -46,6 +49,7 @@ namespace ProductService.Api.Controllers
             return product == null ? NotFound() : Ok(product);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

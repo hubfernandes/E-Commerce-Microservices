@@ -8,8 +8,6 @@ namespace ProductService.Application.Validators
     {
         public ProductCommandValidator()
         {
-            RuleFor(x => x.Id)
-             .GreaterThan(0).WithMessage("Product ID is required and must be a valid positive number.");
 
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Product name is required.")

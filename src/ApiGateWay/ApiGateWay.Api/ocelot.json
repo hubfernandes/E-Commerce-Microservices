@@ -1,0 +1,82 @@
+{
+  "Routes": [
+    {
+      // products
+      "DownstreamPathTemplate": "/api/Products/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5279
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Products/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "RateLimitOptions": {
+        "ClientWhitelist": [ "02da07f5-74db-4d9b-a957-c8febe11466e" ],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 3
+      },
+      "FileCacheOptions": {
+        "Region": "products",
+        "TtlSeconds": 10
+      },
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "AddHeadersToRequest": {
+        "ApiGateWay": true // listen to only ApiGateWay
+      },
+      "HttpHandlerOptions": {"UseTracing": true}
+     
+      
+    },
+    {
+      // orders/
+      "DownstreamPathTemplate": "/api/Orders/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5193
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Orders/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+
+      "FileCacheOptions": {
+        "Region": "orders",
+        "TtlSeconds": 10
+      },
+      "AddHeadersToRequest": {
+        "ApiGateWay": true // listen to only ApiGateWay
+      },
+      "HttpHandlerOptions": { "UseTracing": true }
+    },
+    {
+      // auth 
+      "DownstreamPathTemplate": "/api/Account/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5089
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Account/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+
+    }
+  ],
+  "GlobalConfiguration": {
+    "RateLimitOptions": {
+      "ClientIdHeader": "ClientId", // that make in headers in postman Like that : ClientId: 02da07f5-74db-4d9b-a957-c8febe11466e
+      "QuotaExceededMessage": "Too many requests! Please try again later.",
+      "RateLimitCounterPrefix": "ocelot",
+      "HttpStatusCode": 429
+    }
+  }
+}

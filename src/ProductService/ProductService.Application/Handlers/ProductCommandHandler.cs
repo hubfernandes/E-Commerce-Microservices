@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using ProductService.Application.Commands;
 using ProductService.Application.Validators;
 using ProductService.Domain.Entities;
@@ -17,21 +18,28 @@ namespace ProductService.Application.Handlers
         private readonly IMapper _mapper;
         private readonly IValidateProductExists _validateProductExists;
         public readonly ResponseHandler _responseHandler;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-
-        public ProductCommandHandler(IProductRepository productRepository, ResponseHandler responseHandler, IMapper mapper, IValidateProductExists validateProductExists)
+        public ProductCommandHandler(IProductRepository productRepository, ResponseHandler responseHandler, IMapper mapper, IValidateProductExists validateProductExists,
+            IHttpContextAccessor httpContextAccessor)
         {
             _productRepository = productRepository;
             _validateProductExists = validateProductExists;
             _mapper = mapper;
             _responseHandler = responseHandler;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Response<string>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             try
             {
+                //var user = _httpContextAccessor.HttpContext?.User;
+                //var userRole = user!.FindFirst(ClaimTypes.Role)?.Value;
+                //var userId = user!.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException("Customer ID not found in token.");
+
+
                 var product = _mapper.Map<Product>(request);
                 if (request.Id != 0) await _validateProductExists.ValidateProductExistsAsync(request.Id);
                 var addedProduct = await _productRepository.AddAsync(product);

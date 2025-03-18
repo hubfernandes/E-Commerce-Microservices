@@ -18,6 +18,7 @@ namespace Auth.Api.Controllers
     */
     public class AccountController(IMediator mediator, ResponseHandler responseHandler) : ControllerBase
     {
+
         public IMediator _mediator = mediator;
         public readonly ResponseHandler _responseHandler = responseHandler;
 

@@ -26,6 +26,10 @@ namespace ProductService.Application.Handlers
         public async Task<Response<ProductDto>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
             var product = await _productRepository.GetByIdAsync(request.Id);
+            if (product == null)
+            {
+                return _responseHandler.NotFound<ProductDto>("Product not Found");
+            }
             var mappedProduct = _mapper.Map<ProductDto>(product);
             return _responseHandler.Success(mappedProduct);
         }
