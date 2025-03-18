@@ -16,18 +16,20 @@ namespace Shared.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var signInServie = context.Request.Headers["Api-GetWay"];
-            if (signInServie.FirstOrDefault() is null)
+            _logger.LogInformation("Middleware executed!");
+
+            var signInService = context.Request.Headers["ApiGateWay"];
+
+            if (string.IsNullOrEmpty(signInService))
             {
+                _logger.LogWarning("Request blocked! Missing 'ApiGateWay' header.");
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-                _logger.LogWarning("Unavailable Service");
-                context.Response.WriteAsync("UnAvailable Service");
+                await context.Response.WriteAsync("UnAvailable Service");
                 return;
             }
-            else
-            {
-                await _next(context);
-            }
+
+            _logger.LogInformation("Request allowed! 'ApiGateWay' header found.");
+            await _next(context);
         }
     }
 }

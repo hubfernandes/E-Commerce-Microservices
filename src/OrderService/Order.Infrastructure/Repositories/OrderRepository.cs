@@ -1,4 +1,5 @@
-﻿using Order.Infrastructure.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using Order.Infrastructure.Context;
 using Order.Infrastructure.Interfaces;
 using ProductService.Domain.Entities;
 using Shared.Bases;
@@ -98,6 +99,10 @@ namespace Order.Infrastructure.Repositories
                     order.CalculateTotalAmount();
                 }
             }
+        }
+        public override async Task<List<Domain.Entities.Order>> GetAllAsync()
+        {
+            return await _context.Orders.Include(i => i.Items).ToListAsync();
         }
     }
 }

@@ -41,17 +41,3 @@ namespace Shared.Behavoir
         }
     }
 }
-
-/*
-  How They Work Together?
-✔️ FluentValidation defines validation rules.
-✔️ Behavior (Validation Pipeline) automates running the validation before the command reaches the handler.
-✔️ If validation fails, the behavior prevents execution of the handler and returns errors.
-
- 
-  How This Works in Your Case?
-✔️ When CreateStudentWithResponse is called, MediatR sends AddStudentCommandWithResponse.
-✔️ Before the request reaches the handler, --->ValidationBehavior runs FluentValidation<---.
-✔️ If validation fails, it stops execution and returns an error response.
-✔️ If validation passes, the request proceeds to the handler.  
- */

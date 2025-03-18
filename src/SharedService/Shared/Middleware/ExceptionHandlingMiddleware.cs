@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Shared.Middleware;
 using System.Text.Json;
 public class ExceptionHandlingMiddleware
 {
@@ -79,11 +80,30 @@ public class ExceptionHandlingMiddleware
     }
 
 }
+public static class MiddlewareExtensions
+{
+    public static IApplicationBuilder UseMethodNotAllowedHandler(this IApplicationBuilder app)
+    {
+        return app.Use(async (context, next) =>
+        {
+            await next.Invoke();
+
+            if (context.Response.StatusCode == StatusCodes.Status405MethodNotAllowed)
+            {
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync("{\"message\": \"This method is not supported for this route\"}");
+            }
+        });
+    }
+}
+
 public static class UseExecptionMidllerware
 {
-    public static IApplicationBuilder UseExceptionHandlingMiddleware(this IApplicationBuilder app)
+    public static void UseExceptionHandlingMiddleware(this IApplicationBuilder app)
     {
-        return app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseMethodNotAllowedHandler();
+        app.UseMiddleware<ListenToOnlyApiGetWay>();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
     }
 }
 
