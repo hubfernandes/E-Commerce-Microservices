@@ -28,7 +28,7 @@
         "AllowedScopes": []
       },
       "AddHeadersToRequest": {
-        "ApiGateWay": true // listen to only ApiGateWay
+        "ApiGateWay": "true" // listen to only ApiGateWay
       },
       "HttpHandlerOptions": {"UseTracing": true}
      

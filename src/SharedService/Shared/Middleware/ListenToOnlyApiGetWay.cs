@@ -6,9 +6,9 @@ namespace Shared.Middleware
     public class ListenToOnlyApiGetWay
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+        private readonly ILogger<ListenToOnlyApiGetWay> _logger;
 
-        public ListenToOnlyApiGetWay(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public ListenToOnlyApiGetWay(RequestDelegate next, ILogger<ListenToOnlyApiGetWay> logger)
         {
             _next = next;
             _logger = logger;
@@ -19,7 +19,7 @@ namespace Shared.Middleware
             _logger.LogInformation("Middleware executed!");
 
             var signInService = context.Request.Headers["ApiGateWay"];
-
+            //  if (!context.Request.Headers.TryGetValue("ApiGateWay", out var headerValue) || headerValue != _expectedHeaderValue)
             if (string.IsNullOrEmpty(signInService))
             {
                 _logger.LogWarning("Request blocked! Missing 'ApiGateWay' header.");
