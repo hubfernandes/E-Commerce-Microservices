@@ -24,7 +24,7 @@ namespace Order.Api.Controllers
             //    return Unauthorized();
 
             var result = await _mediator.Send(command);
-            return CreatedAtAction(nameof(CreateOrder), new { Result = result });
+            return CreatedAtAction(nameof(CreateOrder), result);
         }
 
         [HttpPut("{id}")]
