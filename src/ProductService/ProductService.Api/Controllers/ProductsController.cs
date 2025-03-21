@@ -37,7 +37,7 @@ namespace ProductService.Api.Controllers
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
             var product = await _mediator.Send(command);
-            return CreatedAtAction(nameof(CreateProduct), new { id = product }, new { Id = product });
+            return CreatedAtAction(nameof(CreateProduct), product);
 
         }
 

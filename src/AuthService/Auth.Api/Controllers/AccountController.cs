@@ -22,6 +22,7 @@ namespace Auth.Api.Controllers
         public IMediator _mediator = mediator;
         public readonly ResponseHandler _responseHandler = responseHandler;
 
+
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(string userId)
         {
@@ -30,11 +31,11 @@ namespace Auth.Api.Controllers
             return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
 
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         [HttpGet("Users")]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers([FromQuery] GetAllAppUsers getAllAppUsers)
         {
-            var result = await _mediator.Send(new GetAllAppUsers());
+            var result = await _mediator.Send(getAllAppUsers);
             return result.Succeeded ? Ok(result) : NotFound(result);
         }
 
@@ -50,7 +51,7 @@ namespace Auth.Api.Controllers
         public async Task<IActionResult> GoogleLoginCallback()
         {
             var token = await _mediator.Send(new GoogleLoginCallbackCommand());
-            return Ok(new { Token = token });
+            return Ok(token);
         }
 
         [HttpGet("confirm-email")]
@@ -62,17 +63,17 @@ namespace Auth.Api.Controllers
 
 
         [HttpPost("register/admin")]
-        public async Task<IActionResult> Register([FromBody] RegisterAdminCommand command)
+        public async Task<IActionResult> Register_For_Admin([FromBody] RegisterAdminCommand command)
         {
             var result = await _mediator.Send(command);
-            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
+            return (bool)result.Succeeded! ? CreatedAtAction(nameof(Register_For_Admin), result) : BadRequest(result);
         }
 
         [HttpPost("register/user")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
+        public async Task<IActionResult> Register_For_User([FromBody] RegisterUserCommand command)
         {
             var result = await _mediator.Send(command);
-            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
+            return (bool)result.Succeeded! ? CreatedAtAction(nameof(Register_For_User), result) : BadRequest(result);
         }
 
         [HttpPost("refresh-token")]
@@ -94,9 +95,9 @@ namespace Auth.Api.Controllers
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //if (string.IsNullOrEmpty(userId))
+            //    return Unauthorized();
 
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
