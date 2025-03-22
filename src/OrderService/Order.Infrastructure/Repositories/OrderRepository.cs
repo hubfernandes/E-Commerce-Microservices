@@ -28,7 +28,7 @@ namespace Order.Infrastructure.Repositories
 
         public override async Task<Domain.Entities.Order> AddAsync(Domain.Entities.Order order)
         {
-            await ValidateCustomerAsync(order.CustomerId);
+            await ValidateCustomerAsync(order.CustomerId!);
             await ValidateAndUpdateProductsAsync(order);
             var result = await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();

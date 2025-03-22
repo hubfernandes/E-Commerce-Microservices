@@ -1,16 +1,15 @@
-using Order.Application;
-using Order.Infrastructure;
+using CartService.Application;
+using CartService.Infrastructure;
 using Shared.AuthShared;
 using Shared.Extensions;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOrderInfrastructureDependencyInjection(builder.Configuration);
-builder.Services.AddApplicationDependencyInjection(builder.Configuration);
+
+builder.Services.AddCartApplicationDependencyInjection(builder.Configuration);
+builder.Services.AddCartInfrastructureDependencyInjection(builder.Configuration);
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerWithJwtAuth();
-
 
 builder.Services.AddHttpClient("ProductService", client =>
 {
@@ -24,21 +23,16 @@ builder.Services.AddHttpClient("AuthService", client =>
 });
 
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
 app.UserSharedMiddleWare();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-app.UseAuthentication();
 app.UseAuthorization();
-
-
 app.MapControllers();
-
 app.Run();

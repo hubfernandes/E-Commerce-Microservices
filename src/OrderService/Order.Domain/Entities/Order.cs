@@ -5,7 +5,7 @@ namespace Order.Domain.Entities
     public class Order
     {
         public int Id { get; private set; }
-        public string CustomerId { get; set; }
+        public string? CustomerId { get; set; }
         public DateTime OrderDate { get; private set; }
         public decimal TotalAmount { get; private set; }
         public OrderStatus Status { get; private set; }
