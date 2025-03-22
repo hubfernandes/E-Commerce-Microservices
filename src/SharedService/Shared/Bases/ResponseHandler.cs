@@ -34,7 +34,7 @@ namespace Shared.Bases
             };
         }
 
-        public Response<T> Unauthorized<T>()
+        public Response<T> Unauthorized<T>(string message)
         {
             return new Response<T>()
             {

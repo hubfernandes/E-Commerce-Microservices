@@ -74,7 +74,7 @@ namespace Auth.Application.Handlers
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return _responseHandler.Unauthorized<string>();
+                return _responseHandler.Unauthorized<string>("Unauthorized User");
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)

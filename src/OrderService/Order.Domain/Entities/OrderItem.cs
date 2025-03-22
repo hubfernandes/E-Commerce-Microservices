@@ -10,12 +10,6 @@
 
         public OrderItem(int productId, int quantity, decimal unitPrice)
         {
-            if (productId <= 0)
-                throw new ArgumentException("Product ID must be positive.", nameof(productId));
-            if (quantity <= 0)
-                throw new ArgumentException("Quantity must be positive.", nameof(quantity));
-            if (unitPrice < 0)
-                throw new ArgumentException("Unit price cannot be negative.", nameof(unitPrice));
             ProductId = productId;
             Quantity = quantity;
             UnitPrice = unitPrice;

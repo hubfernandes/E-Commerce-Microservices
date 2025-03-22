@@ -30,7 +30,7 @@ namespace Auth.Application.Handlers
             var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null)
             {
-                return _responseHandler.Unauthorized<AppUserDto>();
+                return _responseHandler.Unauthorized<AppUserDto>("Unauthorized User");
             }
 
             var userDto = _mapper.Map<AppUserDto>(user);
