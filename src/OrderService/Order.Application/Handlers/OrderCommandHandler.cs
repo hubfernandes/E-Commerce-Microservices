@@ -40,7 +40,7 @@ namespace Order.Application.Handlers
                 var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                       ?? throw new UnauthorizedAccessException("Customer ID not found in token.");
 
-                var order = _mapper.Map<Order.Domain.Entities.Order>(request);
+                var order = _mapper.Map<Domain.Entities.Order>(request);
                 order.CustomerId = customerId;
                 // order.GetType().GetProperty("CustomerId")?.SetValue(order, customerId);
 

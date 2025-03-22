@@ -30,9 +30,9 @@
       "AddHeadersToRequest": {
         "ApiGateWay": "true" // listen to only ApiGateWay
       },
-      "HttpHandlerOptions": {"UseTracing": true}
-     
-      
+      "HttpHandlerOptions": { "UseTracing": true }
+
+
     },
     {
       // orders/
@@ -56,6 +56,29 @@
       },
       "HttpHandlerOptions": { "UseTracing": true }
     },
+
+    {
+      // payment
+      "DownstreamPathTemplate": "/api/Payments/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5146
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Payments/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+
+      "FileCacheOptions": {
+        "Region": "Payments",
+        "TtlSeconds": 10
+      },
+      "AddHeadersToRequest": {
+        "ApiGateWay": true 
+      },
+      "HttpHandlerOptions": { "UseTracing": true }
+    },
     {
       // auth 
       "DownstreamPathTemplate": "/api/Account/{everything}",
@@ -67,7 +90,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Account/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "UpstreamHttpMethod": [ "Get", "Post" ]
 
     }
   ],
