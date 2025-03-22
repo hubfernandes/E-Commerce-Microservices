@@ -55,7 +55,7 @@ namespace Shared.Repository
             return entity;
         }
 
-        public async Task<T> UpdateAsync(T entity)
+        public virtual async Task<T> UpdateAsync(T entity)
         {
             _dbContext.ChangeTracker.Clear();
             _dbContext.Set<T>().Update(entity);

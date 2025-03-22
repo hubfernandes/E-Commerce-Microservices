@@ -1,36 +1,28 @@
+using Payment.Application;
+using Payment.Infrastructure;
 
-namespace Payment.Api
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddPaymentInfrastructureDependencyInjection(builder.Configuration);
+builder.Services.AddApplicationDependencyInjection(builder.Configuration);
+builder.Services.AddHttpClient("OrderService", client => // for IHttpClientFactory
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+    client.BaseAddress = new Uri("http://localhost:5193/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 
-            app.MapControllers();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-            app.Run();
-        }
-    }
-}
+var app = builder.Build();
+app.UserSharedMiddleWare();
+
+
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();
