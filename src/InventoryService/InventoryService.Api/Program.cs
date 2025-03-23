@@ -1,36 +1,30 @@
 
-namespace InventoryService.Api
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+using InventoryService.Application;
+using InventoryService.Infrastructure;
 
-            // Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+builder.Services.AddInventoryApplicationDependencyInjection(builder.Configuration);
+builder.Services.AddInventoryInfrastructurefDependencyInjection(builder.Configuration);
+builder.Services.AddHttpContextAccessor();
 
-            var app = builder.Build();
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+var app = builder.Build();
+app.UserSharedMiddleWare();
 
 
-            app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI();
 
-            app.Run();
-        }
-    }
-}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+
+app.MapControllers();
+
+app.Run();

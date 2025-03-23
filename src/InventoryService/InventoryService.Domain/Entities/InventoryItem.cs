@@ -4,13 +4,14 @@ namespace InventoryService.Domain.Entities;
 
 public class InventoryItem
 {
-    public string ProductId { get; private set; }
+    public int Id { get; private set; }
+    public int ProductId { get; private set; }
     public int QuantityAvailable { get; private set; }
     public int QuantityReserved { get; private set; }
     public int LowStockThreshold { get; private set; }
     public StockStatus Status { get; private set; }
 
-    public InventoryItem(string productId, int quantityAvailable, int lowStockThreshold)
+    public InventoryItem(int productId, int quantityAvailable, int lowStockThreshold)
     {
         ProductId = productId;
         QuantityAvailable = quantityAvailable;

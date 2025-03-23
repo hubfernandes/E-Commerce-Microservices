@@ -34,6 +34,7 @@ namespace Order.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return result.Entity;
         }
+
         private async Task ValidateAndUpdateProductsAsync(Domain.Entities.Order order)
         {
             var productIds = order.Items.Select(oi => oi.ProductId).Distinct().ToList();
