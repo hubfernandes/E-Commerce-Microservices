@@ -7,24 +7,14 @@ namespace Order.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class OrdersController : ControllerBase
+    public class OrdersController(IMediator _mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public OrdersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
         {
-            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            //if (string.IsNullOrEmpty(userId))
-            //    return Unauthorized();
-
             var result = await _mediator.Send(command);
-            return CreatedAtAction(nameof(CreateOrder), result);
+            return (bool)result.Succeeded! ? CreatedAtAction(nameof(CreateOrder), result) : BadRequest(result);
         }
 
         [HttpPut("{id}")]

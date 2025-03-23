@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Order.Infrastructure.Messaging;
 using ProductService.Application.Commands;
+using ProductService.Application.Events;
 using ProductService.Application.Validators;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Interfaces;
@@ -19,16 +21,17 @@ namespace ProductService.Application.Handlers
         private readonly IValidateProductExists _validateProductExists;
         public readonly ResponseHandler _responseHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly IMessageBroker _messageBroker;
 
         public ProductCommandHandler(IProductRepository productRepository, ResponseHandler responseHandler, IMapper mapper, IValidateProductExists validateProductExists,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor, IMessageBroker messageBroker)
         {
             _productRepository = productRepository;
             _validateProductExists = validateProductExists;
             _mapper = mapper;
             _responseHandler = responseHandler;
             _httpContextAccessor = httpContextAccessor;
+            _messageBroker = messageBroker;
         }
 
         public async Task<Response<string>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -43,6 +46,12 @@ namespace ProductService.Application.Handlers
                 var product = _mapper.Map<Product>(request);
                 if (request.Id != 0) await _validateProductExists.ValidateProductExistsAsync(request.Id);
                 var addedProduct = await _productRepository.AddAsync(product);
+
+                // Publish event
+                var productEvent = new ProductCreatedEvent(product.Id, product.Name);
+                await _messageBroker.PublishAsync("product.created", productEvent);
+
+
                 return _responseHandler.Created<string>("Product Created Successfully");
             }
             catch (KeyNotFoundException ex)

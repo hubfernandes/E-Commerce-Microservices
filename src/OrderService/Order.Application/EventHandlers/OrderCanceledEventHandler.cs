@@ -15,11 +15,8 @@ namespace Order.Application.EventHandlers
 
         public async Task Handle(OrderCanceledEvent @event)
         {
-            foreach (var item in @event.Items)
-            {
-                var command = new ReleaseStockCommand(item.ProductId, item.Quantity);
-                await _mediator.Send(command);
-            }
+            var command = new ReleaseStockCommand(@event.ProductId, @event.Quantity);
+            await _mediator.Send(command);
         }
     }
 }

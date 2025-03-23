@@ -38,7 +38,7 @@ namespace Order.Infrastructure.Repositories
         private async Task ValidateAndUpdateProductsAsync(Domain.Entities.Order order)
         {
             var productIds = order.Items.Select(oi => oi.ProductId).Distinct().ToList();
-            if (productIds.Any()) return;
+            if (productIds.Count == 0) return;
 
             var products = await FetchProductsAsync();
             ValidateProductExistence(productIds, products);
