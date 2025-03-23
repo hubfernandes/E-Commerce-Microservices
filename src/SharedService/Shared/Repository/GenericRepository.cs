@@ -9,9 +9,9 @@ namespace Shared.Repository
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly DbContext _dbContext; // Use base DbContext, not specific
-        private static ILogger<GenericRepository<T>> _logger;
+        private static ILogger<GenericRepository<T>>? _logger;
 
-        public GenericRepository(DbContext dbContext, ILogger<GenericRepository<T>> logger = null)
+        public GenericRepository(DbContext dbContext, ILogger<GenericRepository<T>> logger = null!)
         {
             _dbContext = dbContext;
             _logger = logger;
@@ -24,17 +24,17 @@ namespace Shared.Repository
 
         public virtual async Task<T> GetByIdAsync(int id)
         {
-            return await _dbContext.Set<T>().FindAsync(id);
+            return await _dbContext.Set<T>().FindAsync(id) ?? throw new NullReferenceException();
         }
 
         public async Task<T> GetByIdStringAsync(string id)
         {
-            return await _dbContext.Set<T>().FindAsync(id);
+            return await _dbContext.Set<T>().FindAsync(id) ?? throw new NullReferenceException();
         }
 
         public virtual async Task<T> GetByNameAsync(string name)
         {
-            return await _dbContext.Set<T>().FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == name);
+            return await _dbContext.Set<T>().FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == name) ?? throw new NullReferenceException(); ;
         }
 
         public IQueryable<T> GetTableNoTracking()

@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Order.Infrastructure.Messaging;
 using ProductService.Application.Commands;
 using ProductService.Application.Events;
 using ProductService.Application.Validators;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Interfaces;
 using Shared.Bases;
+using Shared.Messaging;
 
 namespace ProductService.Application.Handlers
 {
