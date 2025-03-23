@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using InventoryService.Application.Commands;
+﻿using InventoryService.Application.Commands;
 using InventoryService.Infrastructure.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Shared.Bases;
 
 namespace InventoryService.Application.Handlers
@@ -13,21 +11,14 @@ namespace InventoryService.Application.Handlers
                                              IRequestHandler<ReconcileStockCommand, Response<string>>
     {
         private readonly IInventoryRepository _inventoryRepository;
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ResponseHandler _responseHandler;
 
-        public InventoryCommandHandler(
-            IInventoryRepository inventoryRepository,
-            IMapper mapper,
-            IHttpContextAccessor httpContextAccessor,
-            ResponseHandler responseHandler)
+        public InventoryCommandHandler(IInventoryRepository inventoryRepository, ResponseHandler responseHandler)
         {
             _inventoryRepository = inventoryRepository;
-            _mapper = mapper;
-            _httpContextAccessor = httpContextAccessor;
             _responseHandler = responseHandler;
         }
+
 
         public async Task<Response<string>> Handle(ReserveStockCommand request, CancellationToken cancellationToken)
         {

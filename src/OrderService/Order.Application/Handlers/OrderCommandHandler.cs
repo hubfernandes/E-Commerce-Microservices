@@ -3,8 +3,10 @@ using InventoryService.Application.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Order.Application.Commands;
+using Order.Application.Events;
 using Order.Application.Validators;
 using Order.Infrastructure.Interfaces;
+using Order.Infrastructure.Messaging;
 using Shared.Bases;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -12,28 +14,30 @@ namespace Order.Application.Handlers
 {
     public class OrderCommandHandler : IRequestHandler<CreateOrderCommand, Response<string>>,
                                        IRequestHandler<UpdateOrderCommand, Response<string>>,
-                                       IRequestHandler<DeleteOrderCommand, Response<string>>
-    //  IRequestHandler<CancelOrderCommand, Response<string>>
+                                       IRequestHandler<DeleteOrderCommand, Response<string>>,
+                                       IRequestHandler<CancelOrderCommand, Response<string>>
     //  IRequestHandler<CreateOrderFromCartCommand, Response<string>> // new one i added .. i will be check it 
 
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IMapper _mapper;
         private readonly IValidateOrderExists _validateOrderExists;
-        private readonly ResponseHandler _responseHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        //  private readonly IMessageBroker _messageBroker;
+        private readonly IMessageBroker _messageBroker;
+        private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
+        private readonly ResponseHandler _responseHandler;
+
         public OrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IValidateOrderExists validateOrderExists, ResponseHandler responseHandler,
-               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IMessageBroker messageBroker)
 
         {
             _orderRepository = orderRepository;
-            _httpClient = httpClientFactory.CreateClient("inventory-service");
+            _httpClient = httpClientFactory.CreateClient("InventoryService");
             _mapper = mapper;
             _validateOrderExists = validateOrderExists;
             _responseHandler = responseHandler;
             _httpContextAccessor = httpContextAccessor;
+            _messageBroker = messageBroker;
         }
 
         public async Task<Response<string>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -48,7 +52,7 @@ namespace Order.Application.Handlers
                 foreach (var item in request.Items)
                 {
                     var reserveRequest = new ReserveStockCommand(item.ProductId, item.Quantity);
-                    var response = await _httpClient.PostAsJsonAsync("http://inventory-service/api/inventory/reserve", reserveRequest);
+                    var response = await _httpClient.PostAsJsonAsync("http://localhost:5140/api/Inventory/reserve", reserveRequest);
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -98,19 +102,21 @@ namespace Order.Application.Handlers
             }
         }
 
-        //public async Task<Response<string>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
-        //{
-        //    var order = await _orderRepository.GetByIdAsync(request.OrderId);
-        //    if (order == null) return _responseHandler.NotFound<string>("Order not found");
+        public async Task<Response<string>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
+        {
+            var order = await _orderRepository.GetByIdAsync(request.OrderId);
+            if (order == null) return _responseHandler.NotFound<string>("Order not found");
 
-        //    await _orderRepository.DeleteAsync(order);
+            await _orderRepository.DeleteAsync(order);
 
-        //    // Publish event to release stock
-        //    var releaseEvent = new OrderCanceledEvent(order.Items);
-        //    await _messageBroker.PublishAsync("order.canceled", releaseEvent);
+            foreach (var x in order.Items)  // publish event to release stock
+            {
+                var releaseEvent = new OrderCanceledEvent(x.ProductId, x.Quantity);
+                await _messageBroker.PublishAsync("order.canceled", releaseEvent);
+            }
 
-        //    return _responseHandler.Success<string>("Order canceled successfully");
-        //}
+            return _responseHandler.Success<string>("Order canceled successfully");
+        }
 
 
 
