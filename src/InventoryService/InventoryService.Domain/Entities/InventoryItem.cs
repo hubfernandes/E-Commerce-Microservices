@@ -30,6 +30,7 @@ public class InventoryItem
 
     public void ReleaseStock(int quantity)
     {
+        if (QuantityReserved < quantity) throw new Exception("Insufficient stock");
         QuantityReserved -= quantity;
         QuantityAvailable += quantity;
         UpdateStatus();

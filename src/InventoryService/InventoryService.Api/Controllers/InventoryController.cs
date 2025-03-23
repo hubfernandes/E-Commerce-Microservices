@@ -23,22 +23,22 @@ namespace InventoryService.Api.Controllers
         [HttpPost("reserve")]
         public async Task<IActionResult> ReserveStock([FromBody] ReserveStockCommand command)
         {
-            await _mediator.Send(command);
-            return NoContent();
+            var result = await _mediator.Send(command);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("release")]
         public async Task<IActionResult> ReleaseStock([FromBody] ReleaseStockCommand command)
         {
-            await _mediator.Send(command);
-            return NoContent();
+            var result = await _mediator.Send(command);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateStock([FromBody] UpdateStockCommand command)
         {
-            await _mediator.Send(command);
-            return NoContent();
+            var result = await _mediator.Send(command);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
 
         [HttpGet("low-stock")]
@@ -46,14 +46,14 @@ namespace InventoryService.Api.Controllers
         {
             var query = new GetLowStockQuery(threshold);
             var result = await _mediator.Send(query);
-            return Ok(result);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("reconcile")]
         public async Task<IActionResult> ReconcileStock([FromBody] ReconcileStockCommand command)
         {
-            await _mediator.Send(command);
-            return NoContent();
+            var result = await _mediator.Send(command);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
     }
 }

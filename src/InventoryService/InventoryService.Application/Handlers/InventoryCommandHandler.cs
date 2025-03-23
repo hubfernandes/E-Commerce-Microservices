@@ -34,7 +34,7 @@ namespace InventoryService.Application.Handlers
             try
             {
                 var item = await _inventoryRepository.GetByProductIdAsync(request.ProductId);
-                if (item == null) return _responseHandler.NotFound<string>("Inventory item not found");
+                if (item == null) return _responseHandler.NotFound<string>($"Inventory item with Id: {request.ProductId} not found");
 
                 item.ReserveStock(request.Quantity);
                 await _inventoryRepository.UpdateAsync(item);
@@ -51,7 +51,7 @@ namespace InventoryService.Application.Handlers
             try
             {
                 var item = await _inventoryRepository.GetByProductIdAsync(request.ProductId);
-                if (item == null) return _responseHandler.NotFound<string>("Inventory item not found");
+                if (item == null) return _responseHandler.NotFound<string>($"Inventory item with Id: {request.ProductId} not found");
 
                 item.ReleaseStock(request.Quantity);
                 await _inventoryRepository.UpdateAsync(item);
@@ -68,7 +68,7 @@ namespace InventoryService.Application.Handlers
             try
             {
                 var item = await _inventoryRepository.GetByProductIdAsync(request.ProductId);
-                if (item == null) return _responseHandler.NotFound<string>("Inventory item not found");
+                if (item == null) return _responseHandler.NotFound<string>($"Inventory item with Id: {request.ProductId} not found");
 
                 item.UpdateStock(request.Quantity);
                 await _inventoryRepository.UpdateAsync(item);
@@ -85,10 +85,9 @@ namespace InventoryService.Application.Handlers
             try
             {
                 var item = await _inventoryRepository.GetByProductIdAsync(request.ProductId);
-                if (item == null) return _responseHandler.NotFound<string>("Inventory item not found");
+                if (item == null) return _responseHandler.NotFound<string>($"Inventory item with Id: {request.ProductId} not found");
 
                 item.UpdateStock(request.Quantity); // Adjust stock for reconciliation
-                                                    // Optionally log the reason (e.g., to a logging service or audit table)
                 await _inventoryRepository.UpdateAsync(item);
                 return _responseHandler.Success<string>($"Stock reconciled successfully: {request.Reason}");
             }

@@ -1,4 +1,4 @@
 ﻿namespace InventoryService.Domain.Dtos
 {
-    public record LowStockDto(string ProductId, int QuantityAvailable, int QuantityReserved);
+    public record LowStockDto(int ProductId, int QuantityAvailable, int QuantityReserved);
 }
