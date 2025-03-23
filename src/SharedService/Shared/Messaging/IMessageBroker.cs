@@ -1,8 +1,8 @@
-﻿namespace Order.Infrastructure.Messaging
+﻿namespace Shared.Messaging
 {
     public interface IMessageBroker
     {
         Task PublishAsync<T>(string topic, T message);
-        void Subscribe<T>(string topic, Action<T> handler);
+        Task SubscribeAsync<T>(string topic, Func<T, Task> handler);
     }
 }

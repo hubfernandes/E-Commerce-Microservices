@@ -7,6 +7,7 @@ using Order.Application.EventHandlers;
 using Order.Application.Handlers;
 using Order.Application.Validators;
 using Shared.Behavoir;
+using Shared.Messaging;
 using System.Reflection;
 
 namespace Order.Application
@@ -25,8 +26,24 @@ namespace Order.Application
 
             //
             services.AddScoped<OrderCanceledEventHandler>();
+            services.AddSingleton<IMessageBroker>(new RabbitMQMessageBroker("localhost"));
+
         }
 
+        //public class OrderCanceledEventConsumer : BackgroundService
+        //{
+        //    private readonly OrderCanceledEventHandler _handler;
+
+        //    public OrderCanceledEventConsumer(OrderCanceledEventHandler handler)
+        //    {
+        //        _handler = handler;
+        //    }
+
+        //    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        //    {
+        //        await _handler.s();
+        //    }
+        //}     
         public static void UserSharedMiddleWare(this IApplicationBuilder app)
         {
             app.UseExceptionHandlingMiddleware();
