@@ -1,4 +1,7 @@
-﻿namespace InventoryService.Application.Commands
+﻿using MediatR;
+using Shared.Bases;
+
+namespace InventoryService.Application.Commands
 {
-    public record UpdateStockCommand(string ProductId, int Quantity);
+    public record UpdateStockCommand(int ProductId, int Quantity) : IRequest<Response<string>>;
 }

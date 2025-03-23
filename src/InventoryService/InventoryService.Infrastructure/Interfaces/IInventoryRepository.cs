@@ -5,7 +5,7 @@ namespace InventoryService.Infrastructure.Interfaces
 {
     public interface IInventoryRepository : IGenericRepository<InventoryItem>
     {
-        Task<InventoryItem> GetByProductIdAsync(string productId);
+        Task<InventoryItem> GetByProductIdAsync(int productId);
         Task<List<InventoryItem>> GetLowStockAsync(int threshold);
     }
 }

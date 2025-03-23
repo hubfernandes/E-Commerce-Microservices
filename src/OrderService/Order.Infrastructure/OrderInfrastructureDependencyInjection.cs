@@ -21,6 +21,8 @@ namespace Order.Infrastructure
             //DI
             services.AddScoped<IOrderRepository, OrderRepository>();
 
+            // services.AddScoped<IMessageBroker, RabbitMQMessageBroker>();
+
         }
     }
 }

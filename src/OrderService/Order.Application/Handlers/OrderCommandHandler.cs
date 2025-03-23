@@ -1,32 +1,35 @@
 ﻿using AutoMapper;
+using InventoryService.Application.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Order.Application.Commands;
 using Order.Application.Validators;
 using Order.Infrastructure.Interfaces;
 using Shared.Bases;
+using System.Net.Http.Json;
 using System.Security.Claims;
 namespace Order.Application.Handlers
 {
-    public class OrderCommandHandler :
-         IRequestHandler<CreateOrderCommand, Response<string>>,
-         IRequestHandler<UpdateOrderCommand, Response<string>>,
-         IRequestHandler<DeleteOrderCommand, Response<string>>
+    public class OrderCommandHandler : IRequestHandler<CreateOrderCommand, Response<string>>,
+                                       IRequestHandler<UpdateOrderCommand, Response<string>>,
+                                       IRequestHandler<DeleteOrderCommand, Response<string>>
+    //  IRequestHandler<CancelOrderCommand, Response<string>>
+    //  IRequestHandler<CreateOrderFromCartCommand, Response<string>> // new one i added .. i will be check it 
+
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IMapper _mapper;
         private readonly IValidateOrderExists _validateOrderExists;
         private readonly ResponseHandler _responseHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public OrderCommandHandler(
-            IOrderRepository orderRepository,
-            IMapper mapper,
-            IValidateOrderExists validateOrderExists,
-            ResponseHandler responseHandler,
-           IHttpClientFactory httpClientFactory,
-           IHttpContextAccessor httpContextAccessor)
+        //  private readonly IMessageBroker _messageBroker;
+        private readonly HttpClient _httpClient;
+        public OrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IValidateOrderExists validateOrderExists, ResponseHandler responseHandler,
+               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+
         {
             _orderRepository = orderRepository;
+            _httpClient = httpClientFactory.CreateClient("inventory-service");
             _mapper = mapper;
             _validateOrderExists = validateOrderExists;
             _responseHandler = responseHandler;
@@ -37,12 +40,25 @@ namespace Order.Application.Handlers
         {
             try
             {
+
                 var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                       ?? throw new UnauthorizedAccessException("Customer ID not found in token.");
 
+                // Reserve stock for each item in the order
+                foreach (var item in request.Items)
+                {
+                    var reserveRequest = new ReserveStockCommand(item.ProductId, item.Quantity);
+                    var response = await _httpClient.PostAsJsonAsync("http://inventory-service/api/inventory/reserve", reserveRequest);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return _responseHandler.BadRequest<string>($"Failed to reserve stock for ProductId: {item.ProductId}");
+                    }
+                }
+
+
                 var order = _mapper.Map<Domain.Entities.Order>(request);
                 order.CustomerId = customerId;
-                // order.GetType().GetProperty("CustomerId")?.SetValue(order, customerId);
 
                 var addedOrder = await _orderRepository.AddAsync(order);
                 return _responseHandler.Created<string>($"Order {addedOrder.Id} Created Successfully");
@@ -58,7 +74,7 @@ namespace Order.Application.Handlers
             try
             {
                 await _validateOrderExists.ValidateOrderExistsAsync(request.Id);
-                var order = _mapper.Map<Order.Domain.Entities.Order>(request);
+                var order = _mapper.Map<Domain.Entities.Order>(request);
                 await _orderRepository.UpdateAsync(order);
                 return _responseHandler.Success<string>("Order Updated Successfully");
             }
@@ -81,5 +97,46 @@ namespace Order.Application.Handlers
                 return _responseHandler.NotFound<string>(ex.Message);
             }
         }
+
+        //public async Task<Response<string>> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
+        //{
+        //    var order = await _orderRepository.GetByIdAsync(request.OrderId);
+        //    if (order == null) return _responseHandler.NotFound<string>("Order not found");
+
+        //    await _orderRepository.DeleteAsync(order);
+
+        //    // Publish event to release stock
+        //    var releaseEvent = new OrderCanceledEvent(order.Items);
+        //    await _messageBroker.PublishAsync("order.canceled", releaseEvent);
+
+        //    return _responseHandler.Success<string>("Order canceled successfully");
+        //}
+
+
+
+
+
+
+        //public async Task<Response<string>> Handle(CreateOrderFromCartCommand request, CancellationToken cancellationToken)
+        //{
+        //    var cart = await _cartRepository.GetByUserIdAsync(request.UserId);
+        //    if (cart == null || !cart.Items.Any()) return _responseHandler.BadRequest<string>("Cart is empty");
+
+        //    // Convert cart to order
+        //    var order = new Order(cart.Items.Select(i => new OrderItem(i.ProductId, i.Quantity)).ToList());
+        //    await _orderRepository.AddAsync(order);
+
+        //    // Deduct reserved stock permanently
+        //    foreach (var item in cart.Items)
+        //    {
+        //        var updateRequest = new UpdateStockCommand(item.ProductId, -item.Quantity); // Negative to deduct
+        //        var response = await httpClientFactory.PutAsJsonAsync("http://inventory-service/api/inventory/update", updateRequest);
+        //        if (!response.IsSuccessStatusCode) return _responseHandler.BadRequest<string>("Failed to update stock");
+        //    }
+
+        //    // Clear cart
+        //    await _cartRepository.DeleteAsync(cart);
+        //    return _responseHandler.Created<string>("Order created successfully");
+        //}
     }
 }

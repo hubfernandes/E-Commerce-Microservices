@@ -2,7 +2,7 @@
 
 namespace Order.Infrastructure.Interfaces
 {
-    public interface IOrderRepository : IGenericRepository<Order.Domain.Entities.Order>
+    public interface IOrderRepository : IGenericRepository<Domain.Entities.Order>
     {
     }
 }
