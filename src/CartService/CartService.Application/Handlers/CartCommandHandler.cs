@@ -10,10 +10,10 @@ using System.Security.Claims;
 
 namespace CartService.Application.Handlers
 {
-    public class CartCommandHandler :
-        IRequestHandler<CreateCartCommand, Response<string>>,
-        IRequestHandler<UpdateCartCommand, Response<string>>,
-        IRequestHandler<DeleteCartCommand, Response<string>>
+    public class CartCommandHandler : IRequestHandler<CreateCartCommand, Response<string>>,
+                                      IRequestHandler<UpdateCartCommand, Response<string>>,
+                                      IRequestHandler<DeleteCartCommand, Response<string>>,
+                                      IRequestHandler<DeleteCartByUserIdCommand, Response<string>>
     {
         private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
@@ -59,6 +59,8 @@ namespace CartService.Application.Handlers
             }
         }
 
+
+
         public async Task<Response<string>> Handle(UpdateCartCommand request, CancellationToken cancellationToken)
         {
             try
@@ -85,6 +87,35 @@ namespace CartService.Application.Handlers
             catch (KeyNotFoundException ex)
             {
                 return _responseHandler.NotFound<string>(ex.Message);
+            }
+        }
+
+        public async Task<Response<string>> Handle(DeleteCartByUserIdCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? throw new UnauthorizedAccessException("User ID not found in token.");
+
+                if (request.UserId != userId)
+                    return _responseHandler.BadRequest<string>("User ID in request does not match authenticated user.");
+
+                var cart = await _cartRepository.GetByUserIdAsync(request.UserId);
+                // var cart = await _cartRepository.GetByUserIdAsync("e7b99a97-553b-49a6-8b0d-f28cae2691f5");
+                if (cart == null)
+                    return _responseHandler.NotFound<string>("Cart not found for the specified user.");
+
+                await _cartRepository.DeleteByUserIdAsync(request.UserId);
+                //await _cartRepository.DeleteByUserIdAsync("e7b99a97-553b-49a6-8b0d-f28cae2691f5");
+                return _responseHandler.Success<string>("Cart deleted successfully");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return _responseHandler.Unauthorized<string>(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return _responseHandler.BadRequest<string>(ex.Message);
             }
         }
     }

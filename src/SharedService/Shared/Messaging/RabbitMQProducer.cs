@@ -14,13 +14,22 @@ namespace Shared.Messaging
             _connection = connection;
         }
 
-        public void SendAsync<T>(T message) where T : class
+        //public void SendAsync<T>(T message) where T : class
+        //{
+        //    using var channel = _connection.Connection.CreateModel();
+        //    channel.QueueDeclare("product.created3", exclusive: false);
+        //    var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+        //    channel.BasicPublish(exchange: "", routingKey: "product.created3", basicProperties: null, body: body);
+        //}
+
+        public async Task PublishAsync<T>(string queueName, T message) where T : class
         {
             using var channel = _connection.Connection.CreateModel();
-            channel.QueueDeclare("product.created3", exclusive: false);
+            channel.QueueDeclare(queue: queueName, exclusive: false);
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
-            channel.BasicPublish(exchange: "", routingKey: "product.created3", basicProperties: null, body: body);
-
+            channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
+            await Task.CompletedTask;
         }
+
     }
 }

@@ -24,6 +24,14 @@ namespace CartService.Api.Controllers
             return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetCartsByUserId(string userId)
+        {
+            var result = await _mediator.Send(new GetCartsByUserIdQuery(userId));
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> GetAllCarts()
         {
@@ -56,5 +64,15 @@ namespace CartService.Api.Controllers
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
+
+        [HttpDelete("delete-by-UserId/{userId}")]
+        public async Task<IActionResult> DeleteCartByUserId(string userId)
+        {
+            var command = new DeleteCartByUserIdCommand(userId);
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
+
+
     }
 }

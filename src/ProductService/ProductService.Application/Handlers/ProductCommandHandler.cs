@@ -50,7 +50,7 @@ namespace ProductService.Application.Handlers
 
                 // Publish event
                 var productEvent = new ProductCreatedEvent(product.Id);
-                _messageProducer.SendAsync(productEvent);
+                await _messageProducer.PublishAsync("product.created3", productEvent);
 
 
 

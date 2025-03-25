@@ -2,6 +2,6 @@
 {
     public interface IMessageProducer
     {
-        void SendAsync<T>(T message) where T : class;
+        Task PublishAsync<T>(string queueName, T message) where T : class;
     }
 }

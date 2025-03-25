@@ -9,7 +9,8 @@ namespace CartService.Application.Handlers
 {
     public class CartQueryHandler :
         IRequestHandler<GetCartByIdQuery, Response<CartDto>>,
-        IRequestHandler<GetAllCartsQuery, Response<List<CartDto>>>
+        IRequestHandler<GetAllCartsQuery, Response<List<CartDto>>>,
+        IRequestHandler<GetCartsByUserIdQuery, Response<List<CartItemDto>>>
     {
         private readonly ICartRepository _cartRepository;
         private readonly IMapper _mapper;
@@ -24,6 +25,18 @@ namespace CartService.Application.Handlers
             _mapper = mapper;
             _responseHandler = responseHandler;
         }
+
+        public async Task<Response<List<CartItemDto>>> Handle(GetCartsByUserIdQuery request, CancellationToken cancellationToken)
+        {
+            var carts = await _cartRepository.GetCartItemsByUserIdAsync(request.UserId);
+            if (carts == null || carts.Count == 0)
+            {
+                return _responseHandler.NotFound<List<CartItemDto>>("No carts found for this user.");
+            }
+            var mappedCarts = _mapper.Map<List<CartItemDto>>(carts);
+            return _responseHandler.Success(mappedCarts);
+        }
+
 
         public async Task<Response<CartDto>> Handle(GetCartByIdQuery request, CancellationToken cancellationToken)
         {

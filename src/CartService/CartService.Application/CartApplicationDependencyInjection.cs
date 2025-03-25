@@ -1,4 +1,5 @@
-﻿using CartService.Application.Handlers;
+﻿using CartService.Application.BackgroundServices;
+using CartService.Application.Handlers;
 using CartService.Application.Validators;
 using FluentValidation;
 using MediatR;
@@ -21,6 +22,12 @@ namespace CartService.Application
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped<IValidateCartExists, ValidateCartExists>();
+
+            // services.AddHostedService<CartExpirationBackgroundService>();
+
+
+
+            services.AddHostedService<StockEventConsumer>();
 
         }
 
