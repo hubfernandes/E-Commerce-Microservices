@@ -1,4 +1,5 @@
 ﻿using InventoryService.Application.Commands;
+using InventoryService.Domain.Entities;
 using InventoryService.Infrastructure.Interfaces;
 using MediatR;
 using Shared.Bases;
@@ -8,7 +9,8 @@ namespace InventoryService.Application.Handlers
     internal class InventoryCommandHandler : IRequestHandler<ReserveStockCommand, Response<string>>,
                                              IRequestHandler<ReleaseStockCommand, Response<string>>,
                                              IRequestHandler<UpdateStockCommand, Response<string>>,
-                                             IRequestHandler<ReconcileStockCommand, Response<string>>
+                                             IRequestHandler<ReconcileStockCommand, Response<string>>,
+                                             IRequestHandler<AddStockCommand, Response<string>>
     {
         private readonly IInventoryRepository _inventoryRepository;
         private readonly ResponseHandler _responseHandler;
@@ -19,7 +21,26 @@ namespace InventoryService.Application.Handlers
             _responseHandler = responseHandler;
         }
 
+        public async Task<Response<string>> Handle(AddStockCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var existingItem = await _inventoryRepository.GetByProductIdAsync(request.ProductId);
+                if (existingItem != null)
+                {
+                    return _responseHandler.BadRequest<string>($"Inventory item for ProductId {request.ProductId} already exists.");
+                }
 
+                var newInventoryItem = new InventoryItem(request.ProductId, request.Quantity, request.LowStockThreshold);
+                await _inventoryRepository.AddAsync(newInventoryItem);
+
+                return _responseHandler.Success<string>("Stock added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return _responseHandler.BadRequest<string>(ex.Message);
+            }
+        }
         public async Task<Response<string>> Handle(ReserveStockCommand request, CancellationToken cancellationToken)
         {
             try

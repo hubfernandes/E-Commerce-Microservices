@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using InventoryService.Application.BackgroundServices;
 using InventoryService.Application.Handlers;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -19,8 +20,12 @@ namespace InventoryService.Application
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            // services.AddScoped<IValidateProductExists, ValidateProductExists>();
 
+
+            //services.AddSingleton<IMessageBroker>(new RabbitMQMessageBroker());
+            //  services.AddScoped<ProductCreatedEventHandler>();
+
+            services.AddHostedService<ProductCreatedEventConsumer>();
         }
 
         public static void UserSharedMiddleWare(this IApplicationBuilder app)

@@ -20,6 +20,14 @@ namespace InventoryService.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPost("add-stock")]
+        public async Task<IActionResult> AddStock([FromBody] AddStockCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
+        }
+
+
         [HttpPost("reserve")]
         public async Task<IActionResult> ReserveStock([FromBody] ReserveStockCommand command)
         {
