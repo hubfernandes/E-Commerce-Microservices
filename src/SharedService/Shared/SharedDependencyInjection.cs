@@ -8,12 +8,13 @@ using Shared.Interfaces;
 using Shared.Repository;
 using Shared.Resources;
 using System.Globalization;
+using System.Reflection;
 
 public static class SharedDependencyInjection
 {
     public static void AddSharedDependencyInjection(this IServiceCollection services, IConfiguration configuration)
     {
-        //services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         //services.AddAutoMapper(Assembly.GetExecutingAssembly());
         //services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
