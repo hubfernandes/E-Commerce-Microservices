@@ -18,6 +18,14 @@ namespace OrderService.Api.Controllers
             return (bool)result.Succeeded! ? CreatedAtAction(nameof(CreateOrder), result) : BadRequest(result);
         }
 
+        [HttpPost("order-from_cart")]
+        public async Task<IActionResult> CreateOrderFromCart([FromBody] CreateOrderFromCartCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? CreatedAtAction(nameof(CreateOrder), result) : BadRequest(result);
+        }
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderCommand command)
         {

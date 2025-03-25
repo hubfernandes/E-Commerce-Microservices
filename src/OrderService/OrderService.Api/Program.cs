@@ -23,6 +23,11 @@ builder.Services.AddHttpClient("AuthService", client =>
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddHttpClient("CartService", client => client.BaseAddress = new Uri("http://localhost:5033"));
+builder.Services.AddHttpClient("InventoryService", client => client.BaseAddress = new Uri("http://localhost:5140"));
+
+
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthorization();

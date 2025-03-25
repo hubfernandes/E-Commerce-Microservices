@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
+using CartService.Application.Events;
+using CartService.Domain.Dtos;
 using InventoryService.Application.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using OrderService.Application.Commands;
 using OrderService.Application.Events;
 using OrderService.Application.Validators;
+using OrderService.Domain.Entities;
 using OrderService.Infrastructure.Interfaces;
 using Shared.Bases;
+using Shared.Messaging;
 using System.Net.Http.Json;
 using System.Security.Claims;
 namespace OrderService.Application.Handlers
@@ -14,29 +18,30 @@ namespace OrderService.Application.Handlers
     public class OrderCommandHandler : IRequestHandler<CreateOrderCommand, Response<string>>,
                                        IRequestHandler<UpdateOrderCommand, Response<string>>,
                                        IRequestHandler<DeleteOrderCommand, Response<string>>,
-                                       IRequestHandler<CancelOrderCommand, Response<string>>
-    //  IRequestHandler<CreateOrderFromCartCommand, Response<string>> // new one i added .. i will be check it 
+                                       IRequestHandler<CancelOrderCommand, Response<string>>,
+                                       IRequestHandler<CreateOrderFromCartCommand, Response<string>> // new one i added .. i will be check it 
 
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IValidateOrderExists _validateOrderExists;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        //  private readonly IMessageBroker _messageBroker;
         private readonly IMapper _mapper;
-        private readonly HttpClient _httpClient;
+        private readonly IMessageProducer _messageProducer;
+        private readonly HttpClient _httpClientInventory;
+        private readonly HttpClient _httpClientCart;
         private readonly ResponseHandler _responseHandler;
-
         public OrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IValidateOrderExists validateOrderExists, ResponseHandler responseHandler,
-               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IMessageProducer messageProducer)
 
         {
             _orderRepository = orderRepository;
-            _httpClient = httpClientFactory.CreateClient("InventoryService");
+            _httpClientInventory = httpClientFactory.CreateClient("InventoryService");
+            _httpClientCart = httpClientFactory.CreateClient("CartService");
             _mapper = mapper;
             _validateOrderExists = validateOrderExists;
             _responseHandler = responseHandler;
             _httpContextAccessor = httpContextAccessor;
-            // _messageBroker = messageBroker;
+            _messageProducer = messageProducer;
         }
 
         public async Task<Response<string>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -51,7 +56,7 @@ namespace OrderService.Application.Handlers
                 foreach (var item in request.Items)
                 {
                     var reserveRequest = new ReserveStockCommand(item.ProductId, item.Quantity);
-                    var response = await _httpClient.PostAsJsonAsync("http://localhost:5140/api/Inventory/reserve", reserveRequest);
+                    var response = await _httpClientInventory.PostAsJsonAsync("http://localhost:5140/api/Inventory/reserve", reserveRequest);
 
                     if (!response.IsSuccessStatusCode)
                     {
@@ -119,29 +124,42 @@ namespace OrderService.Application.Handlers
 
 
 
+        public async Task<Response<string>> Handle(CreateOrderFromCartCommand request, CancellationToken cancellationToken)
+        {
+            var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? throw new UnauthorizedAccessException("Customer ID not found in token.");
 
+            var cartResponse = await _httpClientCart.GetFromJsonAsync<Response<List<CartItemDto>>>($"api/Carts/user/{request.UserId}");
+            if (cartResponse == null)
+                return _responseHandler.BadRequest<string>("Cart not found");
 
+            var orderItems = cartResponse.Data!.Select(item => new OrderItem(item.ProductId, item.Quantity, item.UnitPrice)).ToList();
+            var order = new Order(0, customerId, orderItems);
 
-        //public async Task<Response<string>> Handle(CreateOrderFromCartCommand request, CancellationToken cancellationToken)
-        //{
-        //    var cart = await _cartRepository.GetByUserIdAsync(request.UserId);
-        //    if (cart == null || !cart.Items.Any()) return _responseHandler.BadRequest<string>("Cart is empty");
+            await _orderRepository.AddAsync(order);
 
-        //    // Convert cart to order
-        //    var order = new Order(cart.Items.Select(i => new OrderItem(i.ProductId, i.Quantity)).ToList());
-        //    await _orderRepository.AddAsync(order);
+            try
+            {
+                foreach (var item in cartResponse.Data!)
+                {
+                    await _httpClientInventory.PostAsJsonAsync("api/Inventory/reserve",
+                     new ReserveStockCommand(item.ProductId, item.Quantity));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Rollback: Publish OrderFailedEvent
+                var orderFailedEvent = new OrderFailedEvent
+                {
+                    OrderId = order.Id,
+                    Items = cartResponse.Data
+                };
+                await _messageProducer.PublishAsync("order.failed", orderFailedEvent);
+                return _responseHandler.BadRequest<string>($"Stock deduction failed: {ex.Message}");
+            }
 
-        //    // Deduct reserved stock permanently
-        //    foreach (var item in cart.Items)
-        //    {
-        //        var updateRequest = new UpdateStockCommand(item.ProductId, -item.Quantity); // Negative to deduct
-        //        var response = await httpClientFactory.PutAsJsonAsync("http://inventory-service/api/inventory/update", updateRequest);
-        //        if (!response.IsSuccessStatusCode) return _responseHandler.BadRequest<string>("Failed to update stock");
-        //    }
-
-        //    // Clear cart
-        //    await _cartRepository.DeleteAsync(cart);
-        //    return _responseHandler.Created<string>("Order created successfully");
-        //}
+            await _httpClientCart.DeleteAsync($"api/Carts/delete-by-UserId/{request.UserId}");
+            return _responseHandler.Created<string>($"Order {order.Id} created successfully");
+        }
     }
 }

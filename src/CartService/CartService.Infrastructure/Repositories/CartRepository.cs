@@ -1,4 +1,5 @@
-﻿using CartService.Domain.Entities;
+﻿using CartService.Domain.Dtos;
+using CartService.Domain.Entities;
 using CartService.Infrastructure.Context;
 using CartService.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,20 @@ namespace CartService.Infrastructure.Repositories
 
             _authClient = httpClientFactory.CreateClient("AuthService")
                ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        }
+
+        public async Task<List<CartItemDto>> GetCartItemsByUserIdAsync(string userId)
+        {
+            var carts = await _context.Carts
+                .Where(c => c.UserId == userId)
+                .Include(c => c.Items)
+                .ToListAsync();
+
+            var allItems = carts.SelectMany(c => c.Items)
+                .Select(item => new CartItemDto(item.ProductId, item.Quantity, item.UnitPrice))
+                .ToList();
+
+            return allItems;
         }
 
         public override async Task<Cart> AddAsync(Cart cart)
@@ -128,6 +143,21 @@ namespace CartService.Infrastructure.Repositories
                     cart.CalculateTotal();
                 }
             }
+        }
+
+        public async Task DeleteByUserIdAsync(string userId)
+        {
+            var cart = await _context.Carts.Where(i => i.UserId == userId).ToListAsync();
+            if (cart.Any())
+            {
+                _context.Carts.RemoveRange(cart);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<Cart?> GetByUserIdAsync(string userId)
+        {
+            return await _context.Carts.FirstOrDefaultAsync(c => c.UserId == userId);
         }
     }
 }
