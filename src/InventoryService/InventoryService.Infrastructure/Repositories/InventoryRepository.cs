@@ -6,7 +6,7 @@ using Shared.Repository;
 
 namespace InventoryService.Infrastructure.Repositories
 {
-    internal class InventoryRepository : GenericRepository<InventoryItem>, IInventoryRepository
+    public class InventoryRepository : GenericRepository<InventoryItem>, IInventoryRepository
     {
         private readonly InventoryDbContext _context;
         public InventoryRepository(InventoryDbContext dbContext) : base(dbContext)
@@ -16,7 +16,7 @@ namespace InventoryService.Infrastructure.Repositories
 
         public async Task<InventoryItem> GetByProductIdAsync(int productId)
         {
-            return await _context.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == productId) ?? throw new KeyNotFoundException();
+            return await _context.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == productId);
         }
 
         public Task<List<InventoryItem>> GetLowStockAsync(int threshold)

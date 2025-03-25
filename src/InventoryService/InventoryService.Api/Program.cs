@@ -1,5 +1,4 @@
-
-using InventoryService.Application;
+﻿using InventoryService.Application;
 using InventoryService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInventoryApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddInventoryInfrastructurefDependencyInjection(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
+
+
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -23,8 +25,6 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-
 app.MapControllers();
 
 app.Run();

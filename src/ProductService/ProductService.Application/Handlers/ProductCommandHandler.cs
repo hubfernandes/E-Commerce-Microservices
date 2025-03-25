@@ -2,36 +2,37 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using ProductService.Application.Commands;
-using ProductService.Application.Events;
 using ProductService.Application.Validators;
 using ProductService.Domain.Entities;
 using ProductService.Infrastructure.Interfaces;
 using Shared.Bases;
+using Shared.Events;
 using Shared.Messaging;
 
 namespace ProductService.Application.Handlers
 {
-    public class ProductCommandHandler :
-         IRequestHandler<CreateProductCommand, Response<string>>,
-         IRequestHandler<UpdateProductCommand, Response<string>>,
-         IRequestHandler<DeleteProductCommand, Response<string>>
+    public class ProductCommandHandler : IRequestHandler<CreateProductCommand, Response<string>>,
+                                         IRequestHandler<UpdateProductCommand, Response<string>>,
+                                         IRequestHandler<DeleteProductCommand, Response<string>>
+
     {
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
         private readonly IValidateProductExists _validateProductExists;
         public readonly ResponseHandler _responseHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMessageBroker _messageBroker;
+        private readonly IMessageProducer _messageProducer;
 
         public ProductCommandHandler(IProductRepository productRepository, ResponseHandler responseHandler, IMapper mapper, IValidateProductExists validateProductExists,
-            IHttpContextAccessor httpContextAccessor, IMessageBroker messageBroker)
+            IHttpContextAccessor httpContextAccessor, IMessageProducer messageProducer)
         {
             _productRepository = productRepository;
             _validateProductExists = validateProductExists;
             _mapper = mapper;
             _responseHandler = responseHandler;
             _httpContextAccessor = httpContextAccessor;
-            _messageBroker = messageBroker;
+            _messageProducer = messageProducer;
+
         }
 
         public async Task<Response<string>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -48,8 +49,9 @@ namespace ProductService.Application.Handlers
                 var addedProduct = await _productRepository.AddAsync(product);
 
                 // Publish event
-                var productEvent = new ProductCreatedEvent(product.Id, product.Name);
-                await _messageBroker.PublishAsync("product.created", productEvent);
+                var productEvent = new ProductCreatedEvent(product.Id);
+                _messageProducer.SendAsync(productEvent);
+
 
 
                 return _responseHandler.Created<string>("Product Created Successfully");

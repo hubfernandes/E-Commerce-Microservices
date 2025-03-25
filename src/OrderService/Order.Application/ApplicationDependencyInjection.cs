@@ -7,7 +7,6 @@ using Order.Application.EventHandlers;
 using Order.Application.Handlers;
 using Order.Application.Validators;
 using Shared.Behavoir;
-using Shared.Messaging;
 using System.Reflection;
 
 namespace Order.Application
@@ -26,7 +25,7 @@ namespace Order.Application
 
             //
             services.AddScoped<OrderCanceledEventHandler>();
-            services.AddSingleton<IMessageBroker>(new RabbitMQMessageBroker("localhost"));
+            //  services.AddSingleton<IMessageBroker>(new RabbitMQMessageBroker("localhost"));
 
         }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Bases;
+using Shared.Extensions;
 using Shared.Interfaces;
 using Shared.Repository;
 using Shared.Resources;
@@ -21,6 +22,8 @@ public static class SharedDependencyInjection
         services.AddSingleton<SharedResource>();
         services.AddScoped<IValidationService, ValidationService>();
         services.AddLocalization(options => options.ResourcesPath = "");
+
+        services.RegisterSharedService(); // for rabbitmq connection
 
         services.Configure<RequestLocalizationOptions>(options =>
         {

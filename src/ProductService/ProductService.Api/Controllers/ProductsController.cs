@@ -9,14 +9,8 @@ namespace ProductService.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     //[AllowAnonymous]
-    public class ProductsController : ControllerBase
+    public class ProductsController(IMediator _mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public ProductsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct(int id)
@@ -32,7 +26,7 @@ namespace ProductService.Api.Controllers
             return Ok(products);
         }
 
-        [Authorize(Roles = "admin")]
+        //    [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
@@ -54,7 +48,7 @@ namespace ProductService.Api.Controllers
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var result = await _mediator.Send(new DeleteProductCommand(id));
-            return (bool)result.Succeeded ? Ok(result) : NotFound(result);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
     }
 }

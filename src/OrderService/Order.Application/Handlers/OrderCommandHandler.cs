@@ -6,7 +6,6 @@ using Order.Application.Commands;
 using Order.Application.Events;
 using Order.Application.Validators;
 using Order.Infrastructure.Interfaces;
-using Order.Infrastructure.Messaging;
 using Shared.Bases;
 using System.Net.Http.Json;
 using System.Security.Claims;
@@ -22,13 +21,13 @@ namespace Order.Application.Handlers
         private readonly IOrderRepository _orderRepository;
         private readonly IValidateOrderExists _validateOrderExists;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMessageBroker _messageBroker;
+        //  private readonly IMessageBroker _messageBroker;
         private readonly IMapper _mapper;
         private readonly HttpClient _httpClient;
         private readonly ResponseHandler _responseHandler;
 
         public OrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IValidateOrderExists validateOrderExists, ResponseHandler responseHandler,
-               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IMessageBroker messageBroker)
+               IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
 
         {
             _orderRepository = orderRepository;
@@ -37,7 +36,7 @@ namespace Order.Application.Handlers
             _validateOrderExists = validateOrderExists;
             _responseHandler = responseHandler;
             _httpContextAccessor = httpContextAccessor;
-            _messageBroker = messageBroker;
+            // _messageBroker = messageBroker;
         }
 
         public async Task<Response<string>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -112,7 +111,7 @@ namespace Order.Application.Handlers
             foreach (var x in order.Items)  // publish event to release stock
             {
                 var releaseEvent = new OrderCanceledEvent(x.ProductId, x.Quantity);
-                await _messageBroker.PublishAsync("order.canceled", releaseEvent);
+                //   await _messageBroker.PublishAsync("order.canceled", releaseEvent);
             }
 
             return _responseHandler.Success<string>("Order canceled successfully");
