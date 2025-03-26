@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using MediatR;
 using Payment.Application.Commands;
+using Payment.Domain.Entities;
 using Payment.Infrastructure.Interfaces;
 using Shared.Bases;
 
 namespace Payment.Application.Handlers
 {
-    public class PaymentCommandHandler :
-        IRequestHandler<CreatePaymentCommand, Response<string>>,
-        IRequestHandler<UpdatePaymentStatusCommand, Response<string>>
+    public class PaymentCommandHandler : IRequestHandler<CreatePaymentCommand, Response<string>>,
+                                         IRequestHandler<UpdatePaymentStatusCommand, Response<string>>
+
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly IMapper _mapper;
@@ -31,12 +32,12 @@ namespace Payment.Application.Handlers
             var paymentResult = await ProcessPayment(payment);
             if (!paymentResult.IsSuccess)
             {
-                payment.UpdateStatus("Failed", null!);
+                payment.UpdateStatus(PaymentStatus.Failed, null!);
                 await _paymentRepository.AddAsync(payment);
                 return _responseHandler.BadRequest<string>("Payment processing failed");
             }
 
-            payment.UpdateStatus("Completed", paymentResult.TransactionId);
+            payment.UpdateStatus(PaymentStatus.Completed, paymentResult.TransactionId);
             await _paymentRepository.AddAsync(payment);
             return _responseHandler.Created<string>($"Payment for Order {request.OrderId} processed successfully");
         }
@@ -47,12 +48,12 @@ namespace Payment.Application.Handlers
             if (payment == null)
                 return _responseHandler.NotFound<string>("Payment not found");
 
-            payment.UpdateStatus(request.Status, request.TransactionId!);
+            payment.UpdateStatus(PaymentStatus.Completed, request.TransactionId!);
             await _paymentRepository.UpdateAsync(payment);
             return _responseHandler.Success<string>("Payment status updated successfully");
         }
 
-        private async Task<(bool IsSuccess, string TransactionId)> ProcessPayment(Domain.Entities.Payment payment)
+        public async Task<(bool IsSuccess, string TransactionId)> ProcessPayment(Domain.Entities.Payment payment)
         {
             await Task.Delay(100);
             return (true, Guid.NewGuid().ToString());

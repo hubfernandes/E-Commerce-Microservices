@@ -6,6 +6,7 @@ using Payment.Api.Controllers;
 using Payment.Application.Commands;
 using Payment.Application.Queries;
 using Payment.Domain.Dtos;
+using Payment.Domain.Entities;
 using Shared.Bases;
 
 namespace Payment.Tests.Controllers
@@ -109,7 +110,7 @@ namespace Payment.Tests.Controllers
         public async Task CreatePayment_ValidCommand_ReturnsOk()
         {
             // Arrange
-            var command = new CreatePaymentCommand(1, 99.99m, "CreditCard");
+            var command = new CreatePaymentCommand(1, 99.99m, PaymentStatus.Completed, PaymentMethodType.CreditCard);
             _mediatorMock.Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(CreateResponse("Payment processed", true, "Payment for Order 1 processed successfully"));
 
@@ -128,7 +129,7 @@ namespace Payment.Tests.Controllers
         public async Task CreatePayment_InvalidCommand_ReturnsBadRequest()
         {
             // Arrange
-            var command = new CreatePaymentCommand(999, 0m, "");
+            var command = new CreatePaymentCommand(999, 0m, PaymentStatus.Failed, 0);
             _mediatorMock.Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(CreateResponse<string>(null!, false, "Payment processing failed"));
 

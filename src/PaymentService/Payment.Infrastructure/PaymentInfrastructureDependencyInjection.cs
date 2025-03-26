@@ -19,6 +19,7 @@ namespace Payment.Infrastructure
 
             //DI
             services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IPaymentProcessor, PaymentProcessor>();
 
         }
     }

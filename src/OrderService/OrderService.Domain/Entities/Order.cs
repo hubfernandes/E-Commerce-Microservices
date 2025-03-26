@@ -8,7 +8,7 @@ namespace OrderService.Domain.Entities
         public string? CustomerId { get; set; }
         public DateTime OrderDate { get; private set; }
         public decimal TotalAmount { get; private set; }
-        public OrderStatus Status { get; private set; }
+        public OrderStatus Status { get; set; }
         public List<OrderItem> Items { get; private set; } = new List<OrderItem>();
         private Order()
         {

@@ -22,6 +22,8 @@ namespace Payment.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped<IValidatePaymentExists, ValidatePaymentExists>();
 
+
+
         }
 
         public static void UserSharedMiddleWare(this IApplicationBuilder app)

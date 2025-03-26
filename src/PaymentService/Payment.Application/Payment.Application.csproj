@@ -7,9 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\OrderService\OrderService.Application\OrderService.Application.csproj" />
     <ProjectReference Include="..\..\SharedService\Shared\Shared.csproj" />
     <ProjectReference Include="..\Payment.Domain\Payment.Domain.csproj" />
     <ProjectReference Include="..\Payment.Infrastructure\Payment.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="EventHandlers\" />
   </ItemGroup>
 
 </Project>

@@ -22,9 +22,19 @@ namespace Payment.Application.Validators
         }
     }
 
-    public class CreatePaymentCommandValidator : PaymentCommandValidator<CreatePaymentCommand>
+    public class CreatePaymentCommandValidator : AbstractValidator<CreatePaymentCommand>
     {
-        public CreatePaymentCommandValidator() : base() { }
+        public CreatePaymentCommandValidator()
+        {
+            RuleFor(x => x.Amount)
+                .GreaterThanOrEqualTo(0).WithMessage("Payment amount cannot be negative.");
+
+            RuleFor(x => x.PaymentMethod)
+                .NotEmpty().WithMessage("Payment method is required.");
+
+            RuleFor(x => x.Status)
+                .NotEmpty().WithMessage("Payment status is required.");
+        }
     }
 
     public class UpdatePaymentStatusCommandValidator : PaymentCommandValidator<UpdatePaymentStatusCommand>
