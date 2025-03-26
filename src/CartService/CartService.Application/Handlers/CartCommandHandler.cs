@@ -59,8 +59,6 @@ namespace CartService.Application.Handlers
             }
         }
 
-
-
         public async Task<Response<string>> Handle(UpdateCartCommand request, CancellationToken cancellationToken)
         {
             try

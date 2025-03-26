@@ -41,7 +41,7 @@ namespace Payment.Infrastructure.Repositories
         {
             try
             {
-                var response = await _orderClient.GetAsync($"api/orders/{orderId}");
+                var response = await _orderClient.GetAsync($"api/Orders/{orderId}");
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new InvalidOperationException($"Order {orderId} not found in OrderService.");
