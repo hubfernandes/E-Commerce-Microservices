@@ -23,11 +23,6 @@ namespace ProductService.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped<IValidateProductExists, ValidateProductExists>();
 
-            //
-            // services.AddSingleton<IMessageBroker>(new RabbitMQMessageBroker("localhost"));
-
-            // services.AddHttpClient("InventoryService", client => client.BaseAddress = new Uri("http://inventory-service"));
-
             services.RegisterSharedService(); // for rabbitmq connection
 
         }

@@ -19,7 +19,7 @@ namespace OrderService.Application.Handlers
                                        IRequestHandler<UpdateOrderCommand, Response<string>>,
                                        IRequestHandler<DeleteOrderCommand, Response<string>>,
                                        IRequestHandler<CancelOrderCommand, Response<string>>,
-                                       IRequestHandler<CreateOrderFromCartCommand, Response<string>> // new one i added .. i will be check it 
+                                       IRequestHandler<CreateOrderFromCartCommand, Response<string>>
 
     {
         private readonly IOrderRepository _orderRepository;
@@ -54,7 +54,6 @@ namespace OrderService.Application.Handlers
                 var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                       ?? throw new UnauthorizedAccessException("Customer ID not found in token.");
 
-                // Reserve stock for each item in the order
                 foreach (var item in request.Items)
                 {
                     var reserveRequest = new ReserveStockCommand(item.ProductId, item.Quantity);
@@ -164,7 +163,6 @@ namespace OrderService.Application.Handlers
             }
             catch (Exception ex)
             {
-                // Rollback: Publish OrderFailedEvent
                 var orderFailedEvent = new OrderFailedEvent
                 {
                     OrderId = order.Id,

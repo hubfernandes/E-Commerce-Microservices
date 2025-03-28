@@ -5,6 +5,7 @@ using CartService.Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using ProductService.Domain.Entities;
 using Shared.Bases;
+using Shared.RedisCache;
 using Shared.Repository;
 using System.Text.Json;
 
@@ -15,10 +16,12 @@ namespace CartService.Infrastructure.Repositories
         private readonly CartContext _context;
         private readonly HttpClient _authClient;
         private readonly HttpClient _productClient;
+        private readonly ICacheService _cacheService;
 
-        public CartRepository(CartContext dbContext, IHttpClientFactory httpClientFactory) : base(dbContext)
+        public CartRepository(CartContext dbContext, IHttpClientFactory httpClientFactory, ICacheService cacheService) : base(dbContext)
         {
             _context = dbContext;
+            _cacheService = cacheService;
 
             _productClient = httpClientFactory.CreateClient("ProductService")
             ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -29,6 +32,14 @@ namespace CartService.Infrastructure.Repositories
 
         public async Task<List<CartItemDto>> GetCartItemsByUserIdAsync(string userId)
         {
+            string cacheKey = $"cart_items_{userId}";
+            var cachedItems = await _cacheService.GetAsync<List<CartItemDto>>(cacheKey);
+
+            if (cachedItems != null)
+            {
+                return cachedItems;
+            }
+
             var carts = await _context.Carts
                 .Where(c => c.UserId == userId)
                 .Include(c => c.Items)
@@ -38,6 +49,7 @@ namespace CartService.Infrastructure.Repositories
                 .Select(item => new CartItemDto(item.ProductId, item.Quantity, item.UnitPrice))
                 .ToList();
 
+            await _cacheService.SetAsync(cacheKey, allItems, TimeSpan.FromMinutes(30));
             return allItems;
         }
 
@@ -47,16 +59,47 @@ namespace CartService.Infrastructure.Repositories
             await ValidateAndUpdateProductsAsync(cart);
             var result = await _context.Carts.AddAsync(cart);
             await _context.SaveChangesAsync();
+
+            await _cacheService.SetAsync<List<CartItemDto>>($"cart_items_{cart.UserId}", null!);
+            await _cacheService.SetAsync<Cart>($"cart_{cart.UserId}", null!);
+
             return result.Entity;
         }
 
         public async override Task<List<Cart>> GetAllAsync()
         {
-            return await _context.Carts.Include(i => i.Items).ToListAsync();
+            string cacheKey = "all_carts";
+            var cachedCarts = await _cacheService.GetAsync<List<Cart>>(cacheKey);
+
+            if (cachedCarts != null)
+            {
+                return cachedCarts;
+            }
+
+            var carts = await _context.Carts.Include(i => i.Items).ToListAsync();
+            await _cacheService.SetAsync(cacheKey, carts, TimeSpan.FromHours(1));
+            return carts;
         }
         public async override Task<Cart> GetByIdAsync(int id)
         {
-            return await _context.Carts.AsNoTracking().Include(i => i.Items).FirstOrDefaultAsync(c => c.Id == id);
+            string cacheKey = $"cart_id_{id}";
+            var cachedCart = await _cacheService.GetAsync<Cart>(cacheKey);
+
+            if (cachedCart != null)
+            {
+                return cachedCart;
+            }
+
+            var cart = await _context.Carts
+                .AsNoTracking()
+                .Include(i => i.Items)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (cart != null)
+            {
+                await _cacheService.SetAsync(cacheKey, cart, TimeSpan.FromMinutes(30));
+            }
+            return cart!;
         }
         public override async Task<Cart> UpdateAsync(Cart cart)
         {
@@ -73,6 +116,11 @@ namespace CartService.Infrastructure.Repositories
             existingCart.Items.Clear();
             existingCart.Items.AddRange(cart.Items);
             await _context.SaveChangesAsync();
+
+            await _cacheService.SetAsync<Cart>($"cart_id_{cart.Id}", null!);
+            await _cacheService.SetAsync<List<CartItemDto>>($"cart_items_{cart.UserId}", null!);
+            await _cacheService.SetAsync<Cart>($"cart_{cart.UserId}", null!);
+
             return existingCart;
         }
 
@@ -103,18 +151,27 @@ namespace CartService.Infrastructure.Repositories
         }
         private async Task<Response<List<Product>>> FetchProductsAsync()
         {
+            string cacheKey = "all_products";
+            var cachedProducts = await _cacheService.GetAsync<Response<List<Product>>>(cacheKey);
+
+            if (cachedProducts != null)
+            {
+                return cachedProducts;
+            }
+
             try
             {
                 var response = await _productClient.GetAsync("api/products");
                 response.EnsureSuccessStatusCode();
 
                 var productJson = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("productJson " + productJson);
-
-                return JsonSerializer.Deserialize<Response<List<Product>>>(productJson, new JsonSerializerOptions
+                var products = JsonSerializer.Deserialize<Response<List<Product>>>(productJson, new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 }) ?? throw new InvalidOperationException("Failed to deserialize products.");
+
+                await _cacheService.SetAsync(cacheKey, products, TimeSpan.FromMinutes(15));
+                return products;
             }
             catch (HttpRequestException ex)
             {
@@ -152,12 +209,30 @@ namespace CartService.Infrastructure.Repositories
             {
                 _context.Carts.RemoveRange(cart);
                 await _context.SaveChangesAsync();
+
+                await _cacheService.SetAsync<List<CartItemDto>>($"cart_items_{userId}", null!);
+                await _cacheService.SetAsync<Cart>($"cart_{userId}", null!);
             }
         }
 
         public async Task<Cart?> GetByUserIdAsync(string userId)
         {
-            return await _context.Carts.FirstOrDefaultAsync(c => c.UserId == userId);
+            string cacheKey = $"cart_{userId}";
+            var cachedCart = await _cacheService.GetAsync<Cart>(cacheKey);
+
+            if (cachedCart != null)
+            {
+                return cachedCart;
+            }
+
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart != null)
+            {
+                await _cacheService.SetAsync(cacheKey, cart, TimeSpan.FromMinutes(30));
+            }
+            return cart;
         }
     }
 }

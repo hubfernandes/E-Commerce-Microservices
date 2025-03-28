@@ -5,14 +5,14 @@ namespace Shared.Extensions
 {
     public static class SwaggerExtensions
     {
-        public static IServiceCollection AddSwaggerWithJwtAuth(this IServiceCollection services)
+        public static IServiceCollection AddSwaggerWithJwtAuth(this IServiceCollection services, string ServiceName)
         {
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "E-Commerce Microservice",
+                    Title = ServiceName,
                     Description = "ASP.NET Core Web API"
                 });
 

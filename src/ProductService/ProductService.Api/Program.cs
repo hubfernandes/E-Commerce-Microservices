@@ -16,11 +16,12 @@ builder.Services.AddHttpClient("AuthService", client =>
     client.BaseAddress = new Uri("http://localhost:5089/");
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+builder.Services.AddHttpClient("InventoryService", client => client.BaseAddress = new Uri("http://localhost:5140/"));
 
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
-builder.Services.AddSwaggerWithJwtAuth();
+builder.Services.AddSwaggerWithJwtAuth("ProductService.Api");
 
 builder.Services.AddAuthorization();
 

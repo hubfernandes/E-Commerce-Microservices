@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOrderInfrastructureDependencyInjection(builder.Configuration);
 builder.Services.AddApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
-builder.Services.AddSwaggerWithJwtAuth();
+builder.Services.AddSwaggerWithJwtAuth("OrderService.Api");
 
 builder.Services.AddHostedService<PaymentProcessedEventConsumer>();
 

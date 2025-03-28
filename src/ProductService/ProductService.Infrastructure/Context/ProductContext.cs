@@ -2,7 +2,7 @@
 using ProductService.Domain.Entities;
 using Shared;
 
-namespace ProductService.Infrastructure
+namespace ProductService.Infrastructure.Context
 {
     public class ProductContext : BaseDbContext
     {
