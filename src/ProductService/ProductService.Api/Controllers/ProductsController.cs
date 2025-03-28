@@ -15,23 +15,45 @@ namespace ProductService.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct(int id)
         {
-            var product = await _mediator.Send(new GetProductByIdQuery(id));
-            return (product.Data == null) ? NotFound(product) : Ok(product);
+            var result = await _mediator.Send(new GetProductByIdQuery(id));
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
         // [Authorize(Roles = "user")]
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _mediator.Send(new GetAllProductsQuery());
-            return Ok(products);
+            var result = await _mediator.Send(new GetAllProductsQuery());
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts([FromQuery] string query)
+        {
+            var result = await _mediator.Send(new SearchProductsQuery(query));
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
+
+        [HttpGet("{id}/stock")]
+        public async Task<IActionResult> GetProductStock(int id)
+        {
+            var result = await _mediator.Send(new GetProductStockQuery(id));
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
+
+        //   [Authorize(Roles = "admin")]
+        [HttpGet("low-stock/{threshold}")]
+        public async Task<IActionResult> GetLowStockProducts(int threshold = 10)
+        {
+            var result = await _mediator.Send(new GetLowStockProductsQuery(threshold));
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
 
         //    [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
-            var product = await _mediator.Send(command);
-            return CreatedAtAction(nameof(CreateProduct), product);
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? CreatedAtAction(nameof(CreateProduct), result) : NotFound(result);
 
         }
 
@@ -39,8 +61,8 @@ namespace ProductService.Api.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductCommand command)
         {
-            var product = await _mediator.Send(command);
-            return product == null ? NotFound() : Ok(product);
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
 
         [Authorize(Roles = "admin")]

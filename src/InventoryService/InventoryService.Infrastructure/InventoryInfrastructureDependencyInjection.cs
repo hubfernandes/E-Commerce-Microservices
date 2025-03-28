@@ -4,6 +4,7 @@ using InventoryService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.RedisCache;
 
 namespace InventoryService.Infrastructure
 {
@@ -20,6 +21,12 @@ namespace InventoryService.Infrastructure
             // DI
             services.AddScoped<IInventoryRepository, InventoryRepository>();
 
+            // redis
+            services.AddScoped<ICacheService, CacheService>();
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("redis-inventory");
+            });
         }
     }
 }

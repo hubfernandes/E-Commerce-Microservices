@@ -4,6 +4,7 @@ using CartService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.RedisCache;
 
 namespace CartService.Infrastructure
 {
@@ -20,6 +21,13 @@ namespace CartService.Infrastructure
 
             //DI
             services.AddScoped<ICartRepository, CartRepository>();
+
+            // redis
+            services.AddScoped<ICacheService, CacheService>();
+            services.AddStackExchangeRedisCache(options =>
+             {
+                 options.Configuration = configuration.GetConnectionString("redis-cart");
+             });
 
         }
     }

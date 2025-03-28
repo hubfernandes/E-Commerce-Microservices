@@ -17,7 +17,7 @@ builder.Services.AddOcelot(builder.Configuration);
 //});
 
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
-builder.Services.AddSwaggerWithJwtAuth();
+builder.Services.AddSwaggerWithJwtAuth("Api GateWay");
 
 
 builder.Services.AddControllers();

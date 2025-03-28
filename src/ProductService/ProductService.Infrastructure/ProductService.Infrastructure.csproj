@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\InventoryService\InventoryService.Domain\InventoryService.Domain.csproj" />
+    <ProjectReference Include="..\..\InventoryService\InventoryService.Infrastructure\InventoryService.Infrastructure.csproj" />
     <ProjectReference Include="..\..\SharedService\Shared\Shared.csproj" />
     <ProjectReference Include="..\ProductService.Domain\ProductService.Domain.csproj" />
   </ItemGroup>

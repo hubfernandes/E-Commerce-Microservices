@@ -7,13 +7,12 @@ using Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddAuthInfrastructurefDependencyInjection(builder.Configuration);
 builder.Services.AddAuthApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddAuthenticationServices(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerWithJwtAuth();
+builder.Services.AddSwaggerWithJwtAuth("AuthenticationService.Api");
 
 
 var app = builder.Build();

@@ -69,7 +69,7 @@ namespace Shared.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteByIdAsync(int id)
+        public virtual async Task<bool> DeleteByIdAsync(int id)
         {
             var entity = await GetByIdAsync(id);
             if (entity == null)

@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ProductService.Infrastructure.Context;
 using ProductService.Infrastructure.Interfaces;
 using ProductService.Infrastructure.Repositories;
+using Shared.RedisCache;
 
 namespace ProductService.Infrastructure
 {
@@ -18,6 +20,14 @@ namespace ProductService.Infrastructure
 
             // DI
             services.AddScoped<IProductRepository, ProductRepository>();
+
+            // redis 
+            services.AddScoped<ICacheService, CacheService>();
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("redis-products");
+            });
+
 
         }
     }

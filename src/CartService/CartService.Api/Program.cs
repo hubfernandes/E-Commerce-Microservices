@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCartApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddCartInfrastructureDependencyInjection(builder.Configuration);
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
-builder.Services.AddSwaggerWithJwtAuth();
+builder.Services.AddSwaggerWithJwtAuth("CartService.Api");
 
 builder.Services.AddHttpClient("ProductService", client =>
 {

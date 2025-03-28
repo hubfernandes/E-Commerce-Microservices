@@ -19,7 +19,7 @@ namespace OrderService.Application.Handlers
                                        IRequestHandler<UpdateOrderCommand, Response<string>>,
                                        IRequestHandler<DeleteOrderCommand, Response<string>>,
                                        IRequestHandler<CancelOrderCommand, Response<string>>,
-                                       IRequestHandler<CreateOrderFromCartCommand, Response<string>> // new one i added .. i will be check it 
+                                       IRequestHandler<CreateOrderFromCartCommand, Response<string>>
 
     {
         private readonly IOrderRepository _orderRepository;
@@ -52,7 +52,6 @@ namespace OrderService.Application.Handlers
                 var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                       ?? throw new UnauthorizedAccessException("Customer ID not found in token.");
 
-                // Reserve stock for each item in the order
                 foreach (var item in request.Items)
                 {
                     var reserveRequest = new ReserveStockCommand(item.ProductId, item.Quantity);
@@ -65,7 +64,7 @@ namespace OrderService.Application.Handlers
                 }
 
 
-                var order = _mapper.Map<Domain.Entities.Order>(request);
+                var order = _mapper.Map<Order>(request);
                 order.CustomerId = customerId;
 
                 var addedOrder = await _orderRepository.AddAsync(order);
@@ -82,7 +81,7 @@ namespace OrderService.Application.Handlers
             try
             {
                 await _validateOrderExists.ValidateOrderExistsAsync(request.Id);
-                var order = _mapper.Map<Domain.Entities.Order>(request);
+                var order = _mapper.Map<Order>(request);
                 await _orderRepository.UpdateAsync(order);
                 return _responseHandler.Success<string>("Order Updated Successfully");
             }
@@ -113,10 +112,10 @@ namespace OrderService.Application.Handlers
 
             await _orderRepository.DeleteAsync(order);
 
-            foreach (var x in order.Items)  // publish event to release stock
+            foreach (var x in order.Items)
             {
                 var releaseEvent = new OrderCanceledEvent(x.ProductId, x.Quantity);
-                //   await _messageBroker.PublishAsync("order.canceled", releaseEvent);
+                await _messageProducer.PublishAsync("order.canceled", releaseEvent);
             }
 
             return _responseHandler.Success<string>("Order canceled successfully");
@@ -148,7 +147,6 @@ namespace OrderService.Application.Handlers
             }
             catch (Exception ex)
             {
-                // Rollback: Publish OrderFailedEvent
                 var orderFailedEvent = new OrderFailedEvent
                 {
                     OrderId = order.Id,
