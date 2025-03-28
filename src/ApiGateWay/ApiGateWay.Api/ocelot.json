@@ -106,7 +106,7 @@
       "UpstreamPathTemplate": "/api/Carts/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post" ],
       "AddHeadersToRequest": {
-        "ApiGateWay": "true" // listen to only ApiGateWay
+        "ApiGateWay": "true" 
       }
 
     },
@@ -123,7 +123,7 @@
       "UpstreamPathTemplate": "/api/Inventory/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post" ],
       "AddHeadersToRequest": {
-        "ApiGateWay": "true" // listen to only ApiGateWay
+        "ApiGateWay": "true" 
       }
 
     }
