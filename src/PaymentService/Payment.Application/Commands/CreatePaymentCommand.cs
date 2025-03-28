@@ -1,9 +1,9 @@
 ﻿using MediatR;
-using Payment.Domain.Dtos;
+using Payment.Domain.Entities;
 using Shared.Bases;
 
 namespace Payment.Application.Commands
 {
-    public record CreatePaymentCommand(int OrderId, decimal Amount, string PaymentMethod)
-         : PaymentDto(0, OrderId, Amount, PaymentMethod, "Pending", null), IRequest<Response<string>>;
+    public record CreatePaymentCommand(int OrderId, decimal Amount, PaymentStatus Status, PaymentMethodType PaymentMethod) : IRequest<Response<string>>;
+
 }

@@ -29,6 +29,7 @@ namespace OrderService.Application.Handlers
         private readonly IMessageProducer _messageProducer;
         private readonly HttpClient _httpClientInventory;
         private readonly HttpClient _httpClientCart;
+        private readonly HttpClient _httpClientPayment;
         private readonly ResponseHandler _responseHandler;
         public OrderCommandHandler(IOrderRepository orderRepository, IMapper mapper, IValidateOrderExists validateOrderExists, ResponseHandler responseHandler,
                IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor, IMessageProducer messageProducer)
@@ -37,6 +38,7 @@ namespace OrderService.Application.Handlers
             _orderRepository = orderRepository;
             _httpClientInventory = httpClientFactory.CreateClient("InventoryService");
             _httpClientCart = httpClientFactory.CreateClient("CartService");
+            _httpClientPayment = httpClientFactory.CreateClient("PaymentService");
             _mapper = mapper;
             _validateOrderExists = validateOrderExists;
             _responseHandler = responseHandler;
@@ -122,7 +124,6 @@ namespace OrderService.Application.Handlers
         }
 
 
-
         public async Task<Response<string>> Handle(CreateOrderFromCartCommand request, CancellationToken cancellationToken)
         {
             var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
@@ -136,6 +137,21 @@ namespace OrderService.Application.Handlers
             var order = new Order(0, customerId, orderItems);
 
             await _orderRepository.AddAsync(order);
+
+            // payment
+            //var paymentRequest = new CreatePaymentCommand(order.Id, order.TotalAmount, PaymentStatus.Completed, PaymentMethodType.CreditCard);
+            //var paymentResponse = await _httpClientPayment.PostAsJsonAsync("/api/Payments", paymentRequest);
+            //if (!paymentResponse.IsSuccessStatusCode)
+            //{
+            //    var errorContent = await paymentResponse.Content.ReadAsStringAsync();
+            //    return _responseHandler.BadRequest<string>($"Payment failed: {errorContent}");
+            //}
+
+
+            // Publish OrderCreatedEvent 
+            var orderCreatedEvent = new OrderCreatedEvent(order.Id, order.CustomerId!, order.TotalAmount);
+            await _messageProducer.PublishAsync("order.created", orderCreatedEvent);
+
 
             try
             {

@@ -1,6 +1,9 @@
 using OrderService.Application;
 using OrderService.Infrastructure;
+
 using OrderService.Infrastructure.Services;
+using Payment.Application.BackgroundServices;
+
 using Shared.AuthShared;
 using Shared.Extensions;
 
@@ -12,7 +15,10 @@ builder.Services.AddApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerWithJwtAuth("OrderService.Api");
 
+
 builder.Services.AddHttpClients();
+builder.Services.AddHostedService<PaymentProcessedEventConsumer>();
+
 
 builder.Services.AddHttpContextAccessor();
 
