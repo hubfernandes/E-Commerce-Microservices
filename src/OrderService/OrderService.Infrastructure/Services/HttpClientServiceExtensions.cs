@@ -29,6 +29,11 @@ namespace OrderService.Infrastructure.Services
                 client.BaseAddress = new Uri("http://localhost:5140");
                 client.Timeout = time;
             });
+            services.AddHttpClient("PaymentService", client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5146");
+                client.Timeout = time;
+            });
 
             return services;
         }
