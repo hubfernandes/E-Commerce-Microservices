@@ -1,5 +1,6 @@
 using CartService.Application;
 using CartService.Infrastructure;
+using CartService.Infrastructure.Services;
 using Shared.AuthShared;
 using Shared.Extensions;
 
@@ -11,16 +12,7 @@ builder.Services.AddCartInfrastructureDependencyInjection(builder.Configuration)
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerWithJwtAuth("CartService.Api");
 
-builder.Services.AddHttpClient("ProductService", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5279/");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-builder.Services.AddHttpClient("AuthService", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5089/");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
+builder.Services.AddHttpClients();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();

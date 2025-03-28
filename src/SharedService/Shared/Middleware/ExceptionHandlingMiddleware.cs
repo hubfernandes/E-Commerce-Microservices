@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Shared.Middleware;
 using System.Text.Json;
 public class ExceptionHandlingMiddleware
 {
@@ -101,7 +102,7 @@ public static class UseExecptionMidllerware
     public static void UseExceptionHandlingMiddleware(this IApplicationBuilder app)
     {
         app.UseMethodNotAllowedHandler();
-        // app.UseMiddleware<ListenToOnlyApiGetWay>();
+        app.UseMiddleware<ListenToOnlyApiGetWay>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
     }
 }

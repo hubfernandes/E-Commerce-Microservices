@@ -7,9 +7,6 @@ builder.Services.AddInventoryApplicationDependencyInjection(builder.Configuratio
 builder.Services.AddInventoryInfrastructurefDependencyInjection(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
 
-
-
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

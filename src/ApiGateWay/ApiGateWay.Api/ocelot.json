@@ -92,6 +92,40 @@
       "UpstreamPathTemplate": "/api/Account/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post" ]
 
+    },
+    {
+      // cart 
+      "DownstreamPathTemplate": "/api/Carts/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5033
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Carts/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "AddHeadersToRequest": {
+        "ApiGateWay": "true" // listen to only ApiGateWay
+      }
+
+    },
+    {
+      // inventory 
+      "DownstreamPathTemplate": "/api/Inventory/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5140
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Inventory/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "AddHeadersToRequest": {
+        "ApiGateWay": "true" // listen to only ApiGateWay
+      }
+
     }
   ],
   "GlobalConfiguration": {
