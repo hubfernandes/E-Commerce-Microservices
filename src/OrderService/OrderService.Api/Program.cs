@@ -1,6 +1,9 @@
 using OrderService.Application;
 using OrderService.Infrastructure;
+
+using OrderService.Infrastructure.Services;
 using Payment.Application.BackgroundServices;
+
 using Shared.AuthShared;
 using Shared.Extensions;
 
@@ -12,24 +15,9 @@ builder.Services.AddApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddSharedJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerWithJwtAuth("OrderService.Api");
 
+
+builder.Services.AddHttpClients();
 builder.Services.AddHostedService<PaymentProcessedEventConsumer>();
-
-
-builder.Services.AddHttpClient("ProductService", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5279/");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-builder.Services.AddHttpClient("AuthService", client =>
-{
-    client.BaseAddress = new Uri("http://localhost:5089/");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-
-builder.Services.AddHttpClient("CartService", client => client.BaseAddress = new Uri("http://localhost:5033"));
-builder.Services.AddHttpClient("InventoryService", client => client.BaseAddress = new Uri("http://localhost:5140"));
-builder.Services.AddHttpClient("PaymentService", client => client.BaseAddress = new Uri("http://localhost:5146"));
-
 
 
 builder.Services.AddHttpContextAccessor();
