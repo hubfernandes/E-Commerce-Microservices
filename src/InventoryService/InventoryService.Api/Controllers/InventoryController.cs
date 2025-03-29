@@ -11,7 +11,6 @@ namespace InventoryService.Api.Controllers
     public class InventoryController(IMediator _mediator) : ControllerBase
     {
 
-
         [HttpGet("{productId}")]
         public async Task<ActionResult<StockDto>> GetStock(int productId)
         {
@@ -20,13 +19,20 @@ namespace InventoryService.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet("low-stock")]
+        public async Task<ActionResult<List<LowStockDto>>> GetLowStock([FromQuery] int threshold)
+        {
+            var query = new GetLowStockQuery(threshold);
+            var result = await _mediator.Send(query);
+            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
+        }
+
         [HttpPost("add-stock")]
         public async Task<IActionResult> AddStock([FromBody] AddStockCommand command)
         {
             var result = await _mediator.Send(command);
             return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
-
 
         [HttpPost("reserve")]
         public async Task<IActionResult> ReserveStock([FromBody] ReserveStockCommand command)
@@ -42,23 +48,15 @@ namespace InventoryService.Api.Controllers
             return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateStock([FromBody] UpdateStockCommand command)
+        [HttpPost("reconcile")]
+        public async Task<IActionResult> ReconcileStock([FromBody] ReconcileStockCommand command)
         {
             var result = await _mediator.Send(command);
             return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
         }
 
-        [HttpGet("low-stock")]
-        public async Task<ActionResult<List<LowStockDto>>> GetLowStock([FromQuery] int threshold)
-        {
-            var query = new GetLowStockQuery(threshold);
-            var result = await _mediator.Send(query);
-            return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpPost("reconcile")]
-        public async Task<IActionResult> ReconcileStock([FromBody] ReconcileStockCommand command)
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateStock([FromBody] UpdateStockCommand command)
         {
             var result = await _mediator.Send(command);
             return (bool)(result.Succeeded!) ? Ok(result) : BadRequest(result);

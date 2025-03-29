@@ -7,13 +7,23 @@ namespace Payment.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PaymentsController : ControllerBase
+    public class PaymentsController(IMediator _mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
 
-        public PaymentsController(IMediator mediator)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPaymentById(int id)
         {
-            _mediator = mediator;
+            var query = new GetPaymentByIdQuery(id);
+            var result = await _mediator.Send(query);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
+
+        [HttpGet("order/{orderId}")]
+        public async Task<IActionResult> GetPaymentsByOrderId(int orderId)
+        {
+            var query = new GetPaymentsByOrderIdQuery(orderId);
+            var result = await _mediator.Send(query);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
 
         [HttpPost]
@@ -31,22 +41,6 @@ namespace Payment.Api.Controllers
 
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetPaymentById(int id)
-        {
-            var query = new GetPaymentByIdQuery(id);
-            var result = await _mediator.Send(query);
-            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
-        }
-
-        [HttpGet("order/{orderId}")]
-        public async Task<IActionResult> GetPaymentsByOrderId(int orderId)
-        {
-            var query = new GetPaymentsByOrderIdQuery(orderId);
-            var result = await _mediator.Send(query);
-            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
     }
 }

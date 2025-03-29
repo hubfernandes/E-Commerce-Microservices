@@ -11,7 +11,7 @@
         }
       ],
       "UpstreamPathTemplate": "/api/Products/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "UpstreamHttpMethod": [ "Get", "Post","Delete","Update" ],
       "RateLimitOptions": {
         "ClientWhitelist": [ "02da07f5-74db-4d9b-a957-c8febe11466e" ],
         "EnableRateLimiting": true,
@@ -106,10 +106,27 @@
       "UpstreamPathTemplate": "/api/Carts/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post" ],
       "AddHeadersToRequest": {
-        "ApiGateWay": "true" 
+        "ApiGateWay": "true"
       }
-
     },
+    {
+      // WishList 
+      "DownstreamPathTemplate": "/api/Wishlists/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5109
+        }
+      ],
+      "UpstreamPathTemplate": "/api/Wishlists/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ]
+
+      //"AddHeadersToRequest": {
+      //  "ApiGateWay": "true"
+      //}
+    },
+
     {
       // inventory 
       "DownstreamPathTemplate": "/api/Inventory/{everything}",

@@ -16,10 +16,7 @@ namespace WishlistService.Application.Handlers
         private readonly IMapper _mapper;
         private readonly ResponseHandler _responseHandler;
 
-        public WishlistQueryHandler(
-            IWishlistRepository wishlistRepository,
-            IMapper mapper,
-            ResponseHandler responseHandler)
+        public WishlistQueryHandler(IWishlistRepository wishlistRepository, IMapper mapper, ResponseHandler responseHandler)
         {
             _wishlistRepository = wishlistRepository;
             _mapper = mapper;

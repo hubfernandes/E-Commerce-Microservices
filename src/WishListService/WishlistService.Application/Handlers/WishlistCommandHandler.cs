@@ -24,12 +24,8 @@ namespace WishlistService.Application.Handlers
         private readonly ResponseHandler _responseHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public WishlistCommandHandler(
-            IWishlistRepository wishlistRepository,
-            IMapper mapper,
-            IValidateWishlistExists validateWishlistExists,
-            ResponseHandler responseHandler,
-            IHttpContextAccessor httpContextAccessor)
+        public WishlistCommandHandler(IWishlistRepository wishlistRepository, IMapper mapper, IValidateWishlistExists validateWishlistExists,
+            ResponseHandler responseHandler, IHttpContextAccessor httpContextAccessor)
         {
             _wishlistRepository = wishlistRepository;
             _mapper = mapper;

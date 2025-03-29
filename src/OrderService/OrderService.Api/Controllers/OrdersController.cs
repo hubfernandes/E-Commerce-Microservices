@@ -9,7 +9,21 @@ namespace OrderService.Api.Controllers
     [Route("api/[controller]")]
     public class OrdersController(IMediator _mediator) : ControllerBase
     {
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderById(int id)
+        {
+            var query = new GetOrderByIdQuery(id);
+            var result = await _mediator.Send(query);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrders()
+        {
+            var query = new GetAllOrdersQuery();
+            var result = await _mediator.Send(query);
+            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
@@ -25,7 +39,6 @@ namespace OrderService.Api.Controllers
             return (bool)result.Succeeded! ? CreatedAtAction(nameof(CreateOrder), result) : BadRequest(result);
         }
 
-
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderCommand command)
         {
@@ -34,7 +47,6 @@ namespace OrderService.Api.Controllers
 
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
-
         }
 
         [HttpDelete("{id}")]
@@ -43,23 +55,6 @@ namespace OrderService.Api.Controllers
             var command = new DeleteOrderCommand(id);
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
-
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllOrders()
-        {
-            var query = new GetAllOrdersQuery();
-            var result = await _mediator.Send(query);
-            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOrderById(int id)
-        {
-            var query = new GetOrderByIdQuery(id);
-            var result = await _mediator.Send(query);
-            return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
         }
     }
 }
