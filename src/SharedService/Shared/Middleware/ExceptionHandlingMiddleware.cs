@@ -101,7 +101,7 @@ public static class UseExecptionMidllerware
     public static void UseExceptionHandlingMiddleware(this IApplicationBuilder app)
     {
         app.UseMethodNotAllowedHandler();
-        //app.UseMiddleware<ListenToOnlyApiGetWay>();
+        // app.UseMiddleware<ListenToOnlyApiGetWay>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
     }
 }

@@ -7,14 +7,8 @@ namespace WishlistService.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class WishlistsController : ControllerBase
+    public class WishlistsController(IMediator _mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public WishlistsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetWishlistById(int id)
@@ -45,6 +39,20 @@ namespace WishlistService.Api.Controllers
             return (bool)result.Succeeded! ? CreatedAtAction(nameof(GetWishlistById), new { id = result.Data }, result) : BadRequest(result);
         }
 
+        [HttpPost("add-item")]
+        public async Task<IActionResult> AddItemToWishlist([FromBody] AddItemToWishlistCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("remove-item")]
+        public async Task<IActionResult> RemoveItemFromWishlist([FromBody] RemoveItemFromWishlistCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateWishlist(int id, [FromBody] UpdateWishlistCommand command)
         {
@@ -53,7 +61,6 @@ namespace WishlistService.Api.Controllers
 
             var result = await _mediator.Send(command);
             return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
-
         }
 
         [HttpDelete("{id}")]
@@ -61,7 +68,6 @@ namespace WishlistService.Api.Controllers
         {
             var result = await _mediator.Send(new DeleteWishlistCommand(id));
             return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
-
         }
 
         [HttpDelete("user/{userId}")]
@@ -69,23 +75,6 @@ namespace WishlistService.Api.Controllers
         {
             var result = await _mediator.Send(new DeleteWishlistByUserIdCommand(userId));
             return (bool)result.Succeeded! ? Ok(result) : NotFound(result);
-
-        }
-
-        [HttpPost("add-item")]
-        public async Task<IActionResult> AddItemToWishlist([FromBody] AddItemToWishlistCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
-
-        }
-
-        [HttpPost("remove-item")]
-        public async Task<IActionResult> RemoveItemFromWishlist([FromBody] RemoveItemFromWishlistCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return (bool)result.Succeeded! ? Ok(result) : BadRequest(result);
-
         }
     }
 }

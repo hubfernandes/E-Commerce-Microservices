@@ -1,3 +1,4 @@
+using Shared.Extensions;
 using WishlistService.Application;
 using WishlistService.Infrastructure;
 using WishlistService.Infrastructure.Services;
@@ -5,6 +6,8 @@ using WishlistService.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddWishListApplicationDependencyInjection(builder.Configuration);
 builder.Services.AddWishListInfrastructureDependencyInjection(builder.Configuration);
+builder.Services.AddSwaggerWithJwtAuth("WishListService.Api");
+
 builder.Services.AddHttpClients();
 
 builder.Services.AddControllers();
