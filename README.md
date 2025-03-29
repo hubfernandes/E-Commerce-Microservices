@@ -3,6 +3,8 @@
 ## **Overview**
 This project is a **highly scalable** and **maintainable** e-commerce system built using **ASP.NET Core 8, Clean Architecture, and Microservices**. Each service follows **domain-driven design (DDD)** principles and is deployed as an independent unit, ensuring flexibility and resilience.
 
+![Image](https://github.com/user-attachments/assets/77a29d23-b8e9-4967-975d-ff43b27a3424)
+
 ## **Technologies Used**
 - **.NET 8** - Modern, high-performance framework
 - **C#** - Core development language
