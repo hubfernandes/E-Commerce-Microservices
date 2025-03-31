@@ -129,7 +129,7 @@ docker-compose-redis up --build
 ### Access services via API Gateway:
 ```
 http://localhost:5279/api/products
-http://localhost:5279/5211/orders
+http://localhost:5211/orders
 ```
 ### Run unit tests:
 ```bash
