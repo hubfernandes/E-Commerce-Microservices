@@ -117,17 +117,19 @@ Each service operates independently and communicates through RabbitMQ (event-dri
 ## How to Run Locally
 ### Clone the repository:
 ```bash
-git clone https://github.com/your-repo/ecommerce-microservices.git
+git clone https://github.com/mostafasharaby/E-Commerce-Microservices.git
 cd ecommerce-microservices
 ```
 ### Build and run with Docker:
 ```bash
 docker-compose up --build
+docker-compose-redis up --build
+
 ```
 ### Access services via API Gateway:
 ```
-http://localhost:5000/api/products
-http://localhost:5000/api/orders
+http://localhost:5279/api/products
+http://localhost:5279/5211/orders
 ```
 ### Run unit tests:
 ```bash
