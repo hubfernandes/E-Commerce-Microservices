@@ -110,7 +110,6 @@ Each service operates independently and communicates through RabbitMQ (event-dri
 ## Deployment (🐳 Docker)
 - Each service runs inside a Docker container
 - Docker Compose is used to manage multi-container setup
-- Scalable and deployable in Kubernetes or cloud platforms
 
 ---
 
