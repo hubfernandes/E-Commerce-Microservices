@@ -16,8 +16,8 @@ namespace WishlistService.Infrastructure
             // Db
             services.AddDbContext<WishlistDbContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("WishListConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("WishListConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             //DI

@@ -14,8 +14,8 @@ namespace ProductService.Infrastructure
         {
             services.AddDbContext<ProductContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("ProductConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("ProductConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             // DI

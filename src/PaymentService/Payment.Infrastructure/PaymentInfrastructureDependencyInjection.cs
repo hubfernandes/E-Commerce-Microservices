@@ -13,8 +13,8 @@ namespace Payment.Infrastructure
             // Db
             services.AddDbContext<PaymentDbContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("PaymentConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("PaymentConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             //DI

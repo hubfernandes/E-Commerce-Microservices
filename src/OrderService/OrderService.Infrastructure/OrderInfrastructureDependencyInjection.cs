@@ -14,8 +14,8 @@ namespace OrderService.Infrastructure
             // Db
             services.AddDbContext<OrderDbContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("OrderConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("OrderConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             //DI

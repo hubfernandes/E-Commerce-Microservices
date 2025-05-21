@@ -15,8 +15,8 @@ namespace CartService.Infrastructure
             // Db
             services.AddDbContext<CartContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("CartConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("CartConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             //DI

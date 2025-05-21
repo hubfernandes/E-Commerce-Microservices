@@ -31,8 +31,8 @@ namespace Auth.Infrastructure
             // Db
             services.AddDbContext<AuthDbContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("AuthConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("AuthConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             services.AddIdentity<AppUser, IdentityRole>(options =>

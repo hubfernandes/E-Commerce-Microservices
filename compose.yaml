@@ -1,0 +1,146 @@
+services:
+  authservice:
+    build:
+      context: .
+      dockerfile: src/AuthService/Auth.Api/Dockerfile
+    container_name: authservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=AuthDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+    ports:
+      - "5001:80"
+
+  productservice:
+    build:
+      context: .
+      dockerfile: src/ProductService/ProductService.Api/Dockerfile
+    container_name: productservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=ProductDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+    ports:
+      - "5002:80"
+
+  orderservice:
+    build:
+      context: .
+      dockerfile: src/OrderService/OrderService.Api/Dockerfile
+    container_name: orderservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=OrderDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+    ports:
+      - "5003:80"
+
+  inventoryservice:
+    build:
+      context: .
+      dockerfile: src/InventoryService/InventoryService.Api/Dockerfile
+    container_name: inventoryservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=InventoryDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+    ports:
+      - "5004:80"
+
+  cartservice:
+    build:
+      context: .
+      dockerfile: src/CartService/CartService.Api/Dockerfile
+    container_name: cartservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=CartDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    ports:
+      - "5005:80"
+
+  paymentservice:
+    build:
+      context: .
+      dockerfile: src/PaymentService/Payment.Api/Dockerfile
+    container_name: paymentservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=PaymentDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+    ports:
+      - "5006:80"
+
+  wishlistservice:
+    build:
+      context: .
+      dockerfile: src/WishListService/WishlistService.Api/Dockerfile
+    container_name: wishlistservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=WishListDb;Username=lucernosapi;Password=lucernosapi;
+    depends_on:
+      - db
+      - rabbitmq
+      - redis
+    ports:
+      - "5007:80"
+
+  apigateway:
+    build:
+      context: .
+      dockerfile: src/ApiGateWay/ApiGateWay.Api/Dockerfile
+    container_name: apigateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - authservice
+      - productservice
+      - orderservice
+      - inventoryservice
+      - cartservice
+      - paymentservice
+      - wishlistservice
+    ports:
+      - "5279:80"
+
+  db:
+    image: postgres:16.0-alpine3.18
+    container_name: db
+    environment:
+      POSTGRES_USER: lucernosapi
+      POSTGRES_PASSWORD: lucernosapi
+      POSTGRES_DB: lucernosapi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

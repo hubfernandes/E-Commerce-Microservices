@@ -14,8 +14,8 @@ namespace InventoryService.Infrastructure
         {
             services.AddDbContext<InventoryDbContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("InventoryConnection"),
-                    sqlServerOption => sqlServerOption.EnableRetryOnFailure());
+                option.UseNpgsql(configuration.GetConnectionString("InventoryConnection"),
+                    option => option.EnableRetryOnFailure());
             });
 
             // DI
